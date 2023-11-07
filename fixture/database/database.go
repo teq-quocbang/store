@@ -15,7 +15,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file" // Register using Golang migrate.
 	"github.com/teq-quocbang/store/cache"
 	"github.com/teq-quocbang/store/cache/connection"
-	"github.com/teq-quocbang/store/migration"
+	"github.com/teq-quocbang/store/migrations"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -61,7 +61,7 @@ func InitDatabase() *Database {
 	}
 
 	// migration to test database
-	migration.Up(db, os.Getenv("DB_TEST_MIGRATION_PATH"), os.Getenv("DB_TEST_NAME"))
+	migrations.Up(db, os.Getenv("DB_TEST_MIGRATION_PATH"), os.Getenv("DB_TEST_NAME"))
 
 	return &Database{DB: db.Session(&gorm.Session{})}
 }

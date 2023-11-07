@@ -20,7 +20,7 @@ import (
 	serviceHttp "github.com/teq-quocbang/store/delivery/http"
 	"github.com/teq-quocbang/store/delivery/job"
 	"github.com/teq-quocbang/store/docs"
-	"github.com/teq-quocbang/store/migration"
+	"github.com/teq-quocbang/store/migrations"
 	"github.com/teq-quocbang/store/proto"
 	"github.com/teq-quocbang/store/repository"
 	"github.com/teq-quocbang/store/usecase"
@@ -92,7 +92,7 @@ func executeServer(useCase *usecase.UseCase, client func(ctx context.Context) *g
 	cfg := config.GetConfig()
 
 	// migration
-	migration.Up(client(context.Background()), cfg.MySQL.MigrationPath, cfg.MySQL.DBName)
+	migrations.Up(client(context.Background()), cfg.MySQL.MigrationPath, cfg.MySQL.DBName)
 
 	// cronjob
 	if len(cfg.HealthCheck.HealthCheckEndPoint) > 0 {
