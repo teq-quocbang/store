@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "github.com/teq-quocbang/store/proto";
+
+service TeqService {
+    rpc GetExampleByID(GetByIDRequest) returns(ExampleResponse);
+}
+
+message GetByIDRequest {
+    int64 id = 1;
+}
+
+message ExampleResponse {
+    int64 id = 1;
+    string name = 2;
+    int64 created_by = 3;
+    optional int64 updated_by = 4;
+    string created_at = 5;
+    string updated_at = 6;
+}

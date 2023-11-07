@@ -1,0 +1,166 @@
+basePath: /api
+definitions:
+  model.Example:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  payload.CreateExampleRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  payload.UpdateExampleRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  presenter.ExampleResponseWrapper:
+    properties:
+      example:
+        $ref: '#/definitions/model.Example'
+    type: object
+  presenter.ListExampleResponseWrapper:
+    properties:
+      examples:
+        items:
+          $ref: '#/definitions/model.Example'
+        type: array
+      meta: {}
+    type: object
+info:
+  contact: {}
+  description: Transaction API.
+  title: Example API
+  version: "1.0"
+paths:
+  /examples:
+    get:
+      consumes:
+      - application/json
+      description: Get example by id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.ListExampleResponseWrapper'
+      security:
+      - AuthToken: []
+      summary: Get an example
+      tags:
+      - Example
+    post:
+      consumes:
+      - application/json
+      description: create a example
+      parameters:
+      - description: Example info
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateExampleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.ExampleResponseWrapper'
+      security:
+      - AuthToken: []
+      summary: Create example
+      tags:
+      - Example
+  /examples/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete example by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - AuthToken: []
+      summary: Delete an example
+      tags:
+      - Example
+    get:
+      consumes:
+      - application/json
+      description: Get example by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.ExampleResponseWrapper'
+      security:
+      - AuthToken: []
+      summary: Get an example
+      tags:
+      - Example
+    put:
+      consumes:
+      - application/json
+      description: Update example by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Example info
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UpdateExampleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.ExampleResponseWrapper'
+      security:
+      - AuthToken: []
+      summary: Update an example
+      tags:
+      - Example
+schemes:
+- http
+- https
+securityDefinitions:
+  AuthToken:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
