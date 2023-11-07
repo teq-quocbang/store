@@ -11,7 +11,6 @@ type Account struct {
 	Username     string    `json:"username,omitempty"`
 	Email        string    `json:"email,omitempty"`
 	HashPassword []byte    `json:"hash_password,omitempty"`
-	IsVerified   bool      `json:"is_verified,omitempty"`
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 }
 

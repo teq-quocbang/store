@@ -112,7 +112,6 @@ func (s *TestSuite) TestLogin() {
 				ID:           userID,
 				Username:     testUsername,
 				HashPassword: hashPassword,
-				IsVerified:   false,
 			}, nil,
 		}
 		req := &payload.LoginRequest{
