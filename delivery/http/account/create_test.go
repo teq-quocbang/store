@@ -86,7 +86,7 @@ func TestLogin(t *testing.T) {
 		assertion.NoError(err)
 
 		req := &payload.LoginRequest{
-			ID:       1,
+			Username: "test_username",
 			Password: "test_password",
 		}
 		resp, ctx := setUpTestLogin(req)

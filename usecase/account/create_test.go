@@ -107,7 +107,7 @@ func (s *TestSuite) TestLogin() {
 		// Arrange
 		userID := uuid.New()
 		mockRepo := account.NewMockRepository(s.T())
-		mockRepo.EXPECT().GetAccountByID(s.ctx, uint(1)).ReturnArguments = mock.Arguments{
+		mockRepo.EXPECT().GetAccountByUsername(s.ctx, testUsername).ReturnArguments = mock.Arguments{
 			&model.Account{
 				ID:           userID,
 				Username:     testUsername,
@@ -115,7 +115,7 @@ func (s *TestSuite) TestLogin() {
 			}, nil,
 		}
 		req := &payload.LoginRequest{
-			ID:       1,
+			Username: "test_username",
 			Password: testPassword,
 		}
 		u := s.useCase(mockRepo)
@@ -149,7 +149,7 @@ func (s *TestSuite) TestLogin() {
 		// Arrange
 		mockRepo := account.NewMockRepository(s.T())
 		req := &payload.LoginRequest{
-			ID: 1,
+			Username: "test_username",
 		}
 		u := s.useCase(mockRepo)
 

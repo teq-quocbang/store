@@ -24,9 +24,9 @@ func (p *pgRepository) CreateAccount(ctx context.Context, req *model.Account) (u
 	return req.ID, nil
 }
 
-func (p *pgRepository) GetAccountByID(ctx context.Context, studentID uint) (*model.Account, error) {
+func (p *pgRepository) GetAccountByUsername(ctx context.Context, username string) (*model.Account, error) {
 	var account *model.Account
-	if err := p.getDB(ctx).Where(`id = ?`, studentID).Take(&account).Error; err != nil {
+	if err := p.getDB(ctx).Where(`username = ?`, username).Take(&account).Error; err != nil {
 		return nil, err
 	}
 	return account, nil
