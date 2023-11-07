@@ -1,0 +1,1 @@
+INSERT INTO `examples` (`id`, `name`, `created_by`)VALUES (1, 'test', 1);

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package database;
+
+option go_package = "github.com/teq-quocbang/store/cache/database";
+
+// database of redis that range 0 -> 15
+enum Database {
+  Cache = 0;
+}
