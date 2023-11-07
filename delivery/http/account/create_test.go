@@ -7,10 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/teq-quocbang/store/fixture/database"
 	"github.com/teq-quocbang/store/payload"
-	"github.com/teq-quocbang/store/presenter"
 	"github.com/teq-quocbang/store/repository"
 	"github.com/teq-quocbang/store/usecase"
-	"github.com/teq-quocbang/store/util/test"
 )
 
 func TestSignUp(t *testing.T) {
@@ -41,9 +39,6 @@ func TestSignUp(t *testing.T) {
 		// Assert
 		assertion.NoError(err)
 		assertion.Equal(200, resp.Code)
-		actual, err := test.UnmarshalBody[*presenter.AccountResponseWrapper](resp.Body.Bytes())
-		assertion.NoError(err)
-		assertion.Equal(uint(1), actual.Account.ID)
 	}
 
 	// bad case
@@ -86,7 +81,7 @@ func TestLogin(t *testing.T) {
 		assertion.NoError(err)
 
 		req := &payload.LoginRequest{
-			ID:       1,
+			Username: "test_username",
 			Password: "test_password",
 		}
 		resp, ctx := setUpTestLogin(req)

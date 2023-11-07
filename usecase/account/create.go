@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
 	"github.com/teq-quocbang/store/presenter"
@@ -41,6 +42,7 @@ func (u *UseCase) SignUp(ctx context.Context, req *payload.SignUpRequest) (*pres
 	}
 
 	createAccountRequest := &model.Account{
+		ID:           uuid.New(),
 		Username:     req.Username,
 		HashPassword: hashPassword,
 		Email:        req.Email,
@@ -63,7 +65,7 @@ func (p *UseCase) Login(ctx context.Context, req *payload.LoginRequest) (*presen
 	}
 
 	// get account
-	account, err := p.Account.GetAccountByID(ctx, req.ID)
+	account, err := p.Account.GetAccountByUsername(ctx, req.Username)
 	if err != nil {
 		return nil, myerror.ErrAccountGet(err)
 	}

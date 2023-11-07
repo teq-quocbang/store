@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/google/uuid"
 	"github.com/teq-quocbang/store/model"
 )
 
@@ -16,27 +17,19 @@ func NewAccountPG(getDB func(context.Context) *gorm.DB) Repository {
 	return &pgRepository{getDB: getDB}
 }
 
-func (p *pgRepository) CreateAccount(ctx context.Context, req *model.Account) (uint, error) {
+func (p *pgRepository) CreateAccount(ctx context.Context, req *model.Account) (uuid.UUID, error) {
 	if err := p.getDB(ctx).Create(req).Error; err != nil {
-		return 0, err
+		return uuid.UUID{}, err
 	}
 	return req.ID, nil
 }
 
-func (p *pgRepository) GetAccountByID(ctx context.Context, studentID uint) (*model.Account, error) {
+func (p *pgRepository) GetAccountByUsername(ctx context.Context, username string) (*model.Account, error) {
 	var account *model.Account
-	if err := p.getDB(ctx).Where(`id = ?`, studentID).Take(&account).Error; err != nil {
+	if err := p.getDB(ctx).Where(`username = ?`, username).Take(&account).Error; err != nil {
 		return nil, err
 	}
 	return account, nil
-}
-
-func (p *pgRepository) CreateVerifyAccount(ctx context.Context, req *model.AccountVerify) error {
-	return nil
-}
-
-func (p *pgRepository) GetVerifyAccountByID(ctx context.Context, studentID uint) (*model.AccountVerify, error) {
-	return nil, nil
 }
 
 func (p *pgRepository) GetAccountByConstraint(ctx context.Context, req *model.Account) (*model.Account, error) {

@@ -18,7 +18,7 @@ require (
 	github.com/swaggo/echo-swagger v1.1.3
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/swaggo/swag v1.8.4
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.26.0 // indirect
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/mysql v1.5.2

@@ -20,7 +20,7 @@ type JWTClaimCustom struct {
 }
 
 type UserInfo struct {
-	ID       uint
+	ID       uuid.UUID
 	Username string
 	Email    string
 }

@@ -2,6 +2,7 @@ package account
 
 import (
 	"bou.ke/monkey"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/teq-quocbang/store/model"
@@ -28,6 +29,7 @@ func (s *TestSuite) TestSignUp() {
 	// good case
 	{
 		// Arrange
+		userID := uuid.New()
 		mockRepo := account.NewMockRepository(s.T())
 		mockRepo.EXPECT().GetAccountByConstraint(s.ctx, &model.Account{
 			Username: testUsername,
@@ -40,7 +42,7 @@ func (s *TestSuite) TestSignUp() {
 			Email:        testEmail,
 			HashPassword: hashPassword,
 		}).ReturnArguments = mock.Arguments{
-			uint(1), nil,
+			userID, nil,
 		}
 		u := s.useCase(mockRepo)
 
@@ -55,7 +57,7 @@ func (s *TestSuite) TestSignUp() {
 		assertion.NoError(err)
 		expected := &presenter.AccountResponseWrapper{
 			Account: &model.Account{
-				ID: 1,
+				ID: userID,
 			},
 		}
 		assertion.Equal(expected.Account.ID, reply.Account.ID)
@@ -64,13 +66,14 @@ func (s *TestSuite) TestSignUp() {
 	// bad case
 	{ // account already existed
 		// Arrange
+		userID := uuid.New()
 		mockRepo := account.NewMockRepository(s.T())
 		mockRepo.EXPECT().GetAccountByConstraint(s.ctx, &model.Account{
 			Username: testUsername,
 			Email:    testEmail,
 		}).ReturnArguments = mock.Arguments{
 			&model.Account{
-				ID:           1,
+				ID:           userID,
 				Email:        testEmail,
 				Username:     testUsername,
 				HashPassword: hashPassword,
@@ -102,17 +105,17 @@ func (s *TestSuite) TestLogin() {
 	// good case
 	{
 		// Arrange
+		userID := uuid.New()
 		mockRepo := account.NewMockRepository(s.T())
-		mockRepo.EXPECT().GetAccountByID(s.ctx, uint(1)).ReturnArguments = mock.Arguments{
+		mockRepo.EXPECT().GetAccountByUsername(s.ctx, testUsername).ReturnArguments = mock.Arguments{
 			&model.Account{
-				ID:           1,
+				ID:           userID,
 				Username:     testUsername,
 				HashPassword: hashPassword,
-				IsVerified:   false,
 			}, nil,
 		}
 		req := &payload.LoginRequest{
-			ID:       1,
+			Username: "test_username",
 			Password: testPassword,
 		}
 		u := s.useCase(mockRepo)
@@ -146,7 +149,7 @@ func (s *TestSuite) TestLogin() {
 		// Arrange
 		mockRepo := account.NewMockRepository(s.T())
 		req := &payload.LoginRequest{
-			ID: 1,
+			Username: "test_username",
 		}
 		u := s.useCase(mockRepo)
 

@@ -25,10 +25,6 @@ import (
 var tables = []string{
 	"examples",
 	"account",
-	"semester",
-	"course",
-	"class",
-	"register",
 }
 
 type Database struct {
