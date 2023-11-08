@@ -1,4 +1,4 @@
-package product
+package producer
 
 import (
 	"context"
@@ -15,6 +15,6 @@ type pgRepository struct {
 	getDB func(ctx context.Context) *gorm.DB
 }
 
-func (r *pgRepository) Create(ctx context.Context, p *model.Product) error {
+func (r *pgRepository) Create(ctx context.Context, p *model.Producer) error {
 	return r.getDB(ctx).Create(&p).Error
 }
