@@ -7,47 +7,47 @@ import (
 	"git.teqnological.asia/teq-go/teq-pkg/teqerror"
 )
 
-func ErrSemesterGet(err error) teqerror.TeqError {
+func ErrProductGet(err error) teqerror.TeqError {
 	return teqerror.TeqError{
 		Raw:       err,
 		HTTPCode:  http.StatusInternalServerError,
 		ErrorCode: "30000",
-		Message:   "Failed to get semester.",
+		Message:   "Failed to get product.",
 		IsSentry:  true,
 	}
 }
 
-func ErrSemesterCreate(err error) teqerror.TeqError {
+func ErrProductCreate(err error) teqerror.TeqError {
 	return teqerror.TeqError{
 		Raw:       err,
 		HTTPCode:  http.StatusInternalServerError,
 		ErrorCode: "30001",
-		Message:   "Failed to create semester.",
+		Message:   "Failed to create product.",
 		IsSentry:  true,
 	}
 }
 
-func ErrSemesterUpdate(err error) teqerror.TeqError {
+func ErrProductUpdate(err error) teqerror.TeqError {
 	return teqerror.TeqError{
 		Raw:       err,
 		HTTPCode:  http.StatusInternalServerError,
 		ErrorCode: "30002",
-		Message:   "Failed to update semester.",
+		Message:   "Failed to update product.",
 		IsSentry:  true,
 	}
 }
 
-func ErrSemesterDelete(err error) teqerror.TeqError {
+func ErrProductDelete(err error) teqerror.TeqError {
 	return teqerror.TeqError{
 		Raw:       err,
 		HTTPCode:  http.StatusInternalServerError,
 		ErrorCode: "30003",
-		Message:   "Failed to delete semester.",
+		Message:   "Failed to delete product.",
 		IsSentry:  true,
 	}
 }
 
-func ErrSemesterNotFound() teqerror.TeqError {
+func ErrProductNotFound() teqerror.TeqError {
 	return teqerror.TeqError{
 		Raw:       nil,
 		HTTPCode:  http.StatusNotFound,
@@ -57,12 +57,22 @@ func ErrSemesterNotFound() teqerror.TeqError {
 	}
 }
 
-func ErrSemesterInvalidParam(param string) teqerror.TeqError {
+func ErrProductInvalidParam(param string) teqerror.TeqError {
 	return teqerror.TeqError{
 		Raw:       nil,
 		HTTPCode:  http.StatusBadRequest,
 		ErrorCode: "30005",
 		Message:   fmt.Sprintf("Invalid parameter: `%s`.", param),
+		IsSentry:  false,
+	}
+}
+
+func ErrProductConflictUniqueConstraint(message string) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       nil,
+		HTTPCode:  http.StatusInternalServerError,
+		ErrorCode: "30006",
+		Message:   message,
 		IsSentry:  false,
 	}
 }

@@ -22,13 +22,9 @@ run:
 gen-mock:
 	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/example
 	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/account
-	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/semester
-	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/course
-	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/class
-	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/register
+	@mockery --inpackage --with-expecter --name=Repository --dir=./repository/product
 	
 	@mockery --inpackage --with-expecter --name=ICache --dir=./cache
-	@mockery --inpackage --with-expecter --name=RegisterService --dir=./cache
 
 unit-test:
 	@mkdir coverage || true
