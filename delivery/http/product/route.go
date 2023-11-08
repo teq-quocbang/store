@@ -13,4 +13,5 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 	r := &Route{UseCase: useCase}
 
 	group.POST("", r.Create)
+	group.PUT("/:id", r.Update)
 }
