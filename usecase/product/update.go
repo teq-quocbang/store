@@ -26,8 +26,13 @@ func (u *UseCase) Update(ctx context.Context, req *payload.UpdateProductRequest)
 			return nil, myerror.ErrProductInvalidParam(err.Error())
 		}
 	}
+	productID, err := uuid.Parse(req.ID)
+	if err != nil {
+		return nil, myerror.ErrProductInvalidParam(err.Error())
+	}
+
 	product := &model.Product{
-		ID:          uuid.MustParse(req.ID),
+		ID:          productID,
 		Name:        req.Name,
 		ProductType: req.ProductType,
 		ProducerID:  producer,
