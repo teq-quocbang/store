@@ -7,6 +7,5 @@ import (
 )
 
 type Repository interface {
-	Create(context.Context, *model.Product) error
-	Update(context.Context, *model.Product) error
+	Create(context.Context, model.Product) error
 }

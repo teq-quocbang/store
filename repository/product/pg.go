@@ -15,11 +15,6 @@ type pgRepository struct {
 	getDB func(ctx context.Context) *gorm.DB
 }
 
-func (r *pgRepository) Create(ctx context.Context, p *model.Product) error {
-	return r.getDB(ctx).Create(&p).Error
-}
-
-func (r *pgRepository) Update(ctx context.Context, p *model.Product) error {
-	conditions := p.BuildUpdateFields()
-	return r.getDB(ctx).Model(&model.Product{}).Where("id = ?", p.ID).Updates(conditions).Error
+func (r *pgRepository) Create(ctx context.Context, p model.Product) error {
+	return r.getDB(ctx).Create(p).Error
 }

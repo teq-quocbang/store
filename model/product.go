@@ -1,7 +1,6 @@
 package model
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,20 +25,4 @@ func (Product) TableName() string {
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	p.ID = uuid.New()
 	return nil
-}
-
-func (c Product) BuildUpdateFields() map[string]interface{} {
-	values := reflect.ValueOf(c)
-	result := make(map[string]interface{}, values.NumField())
-
-	for i := 0; i < values.NumField(); i++ {
-		filed := values.Field(i)
-		fieldName := values.Type().Field(i).Name
-
-		if !filed.IsZero() {
-			result[fieldName] = filed.Interface()
-		}
-	}
-
-	return result
 }

@@ -19,18 +19,17 @@ func (u *UseCase) Create(ctx context.Context, req *payload.CreateProductRequest)
 
 	userPrinciple := contexts.GetUserPrincipleByContext(ctx)
 
-	product := &model.Product{
+	product := model.Product{
 		Name:        req.Name,
 		ProductType: req.ProductType,
 		ProducerID:  uuid.MustParse(req.ProducerID),
 		CreatedBy:   userPrinciple.User.ID,
-		UpdatedBy:   userPrinciple.User.ID,
 	}
 	if err := u.Product.Create(ctx, product); err != nil {
 		return nil, myerror.ErrProductCreate(err)
 	}
 
 	return &presenter.ProductResponseWrapper{
-		Product: product,
+		Product: &product,
 	}, nil
 }

@@ -12,15 +12,3 @@ func (p CreateProductRequest) Validate() error {
 	var validate = validator.New()
 	return validate.Struct(p)
 }
-
-type UpdateProductRequest struct {
-	ID          string `json:"id" validate:"required"`
-	Name        string `json:"name" `
-	ProductType string `json:"product_type"`
-	ProducerID  string `json:"producer_id"`
-}
-
-func (p UpdateProductRequest) Validate() error {
-	var validate = validator.New()
-	return validate.Struct(p)
-}
