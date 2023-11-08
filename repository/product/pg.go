@@ -15,6 +15,6 @@ type pgRepository struct {
 	getDB func(ctx context.Context) *gorm.DB
 }
 
-func (r *pgRepository) Create(ctx context.Context, p model.Product) error {
-	return r.getDB(ctx).Create(p).Error
+func (r *pgRepository) Create(ctx context.Context, p *model.Product) error {
+	return r.getDB(ctx).Create(&p).Error
 }
