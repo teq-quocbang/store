@@ -2,6 +2,7 @@ package producer
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
@@ -17,6 +18,7 @@ func (u *UseCase) Create(ctx context.Context, req *payload.CreateProducerRequest
 
 	userPrinciple := contexts.GetUserPrincipleByContext(ctx)
 
+	fmt.Println(userPrinciple.User.ID)
 	producer := &model.Producer{
 		Name:      req.Name,
 		Country:   req.Country,
