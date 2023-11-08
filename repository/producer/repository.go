@@ -1,4 +1,4 @@
-package product
+package producer
 
 import (
 	"context"
@@ -7,5 +7,5 @@ import (
 )
 
 type Repository interface {
-	Create(context.Context, *model.Product) error
+	Create(context.Context, *model.Producer) error
 }
