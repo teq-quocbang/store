@@ -25,11 +25,15 @@ func (s *TestSuite) TestSignUp() {
 		return hashPassword, nil
 	})
 	defer monkey.Unpatch(hashing)
+	userID := uuid.New()
+	uuid := monkey.Patch(uuid.New, func() uuid.UUID {
+		return userID
+	})
+	defer monkey.Unpatch(uuid)
 
 	// good case
 	{
 		// Arrange
-		userID := uuid.New()
 		mockRepo := account.NewMockRepository(s.T())
 		mockRepo.EXPECT().GetAccountByConstraint(s.ctx, &model.Account{
 			Username: testUsername,
@@ -38,6 +42,7 @@ func (s *TestSuite) TestSignUp() {
 			nil, nil,
 		}
 		mockRepo.EXPECT().CreateAccount(s.ctx, &model.Account{
+			ID:           userID,
 			Username:     testUsername,
 			Email:        testEmail,
 			HashPassword: hashPassword,
@@ -66,7 +71,6 @@ func (s *TestSuite) TestSignUp() {
 	// bad case
 	{ // account already existed
 		// Arrange
-		userID := uuid.New()
 		mockRepo := account.NewMockRepository(s.T())
 		mockRepo.EXPECT().GetAccountByConstraint(s.ctx, &model.Account{
 			Username: testUsername,
@@ -115,7 +119,7 @@ func (s *TestSuite) TestLogin() {
 			}, nil,
 		}
 		req := &payload.LoginRequest{
-			Username: "test_username",
+			Username: testUsername,
 			Password: testPassword,
 		}
 		u := s.useCase(mockRepo)
@@ -142,7 +146,7 @@ func (s *TestSuite) TestLogin() {
 
 		// Assert
 		assertion.Error(err)
-		expected := myerror.ErrAccountInvalidParam("Key: 'LoginRequest.ID' Error:Field validation for 'ID' failed on the 'required' tag")
+		expected := myerror.ErrAccountInvalidParam("Key: 'LoginRequest.Username' Error:Field validation for 'Username' failed on the 'required' tag")
 		assertion.Equal(expected, err)
 	}
 	{ // missing password
