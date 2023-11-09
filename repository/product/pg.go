@@ -21,8 +21,7 @@ func (r *pgRepository) Create(ctx context.Context, p *model.Product) error {
 }
 
 func (r *pgRepository) Update(ctx context.Context, p *model.Product) error {
-	conditions := p.BuildUpdateFields()
-	return r.getDB(ctx).Model(&model.Product{}).Where("id = ?", p.ID).Updates(conditions).Error
+	return r.getDB(ctx).Save(&p).Error
 }
 
 func (r *pgRepository) Delete(ctx context.Context, id uuid.UUID) error {

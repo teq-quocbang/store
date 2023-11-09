@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/google/uuid"
 
@@ -35,7 +36,9 @@ func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdateProduct
 	}
 
 	// set dependency
-	productModel.ProducerID = producer
+	if !reflect.DeepEqual(producer, uuid.UUID{}) {
+		productModel.ProducerID = producer
+	}
 	productModel.ID = productID
 	productModel.UpdatedBy = userPrinciple.User.ID
 

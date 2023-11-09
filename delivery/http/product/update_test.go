@@ -16,9 +16,11 @@ import (
 
 	"github.com/teq-quocbang/store/fixture/database"
 	"github.com/teq-quocbang/store/payload"
+	"github.com/teq-quocbang/store/presenter"
 	"github.com/teq-quocbang/store/repository"
 	"github.com/teq-quocbang/store/usecase"
 	"github.com/teq-quocbang/store/util/contexts"
+	"github.com/teq-quocbang/store/util/test"
 	"github.com/teq-quocbang/store/util/token"
 )
 
@@ -55,16 +57,27 @@ func TestUpdate(t *testing.T) {
 	// good case
 	{
 		// Arrange
+		createProduct := &payload.CreateProductRequest{
+			Name:        gofakeit.Name(),
+			ProductType: gofakeit.Car().Type,
+			ProducerID:  producerID.String(),
+		}
+		resp, ctx := setupCreate(createProduct)
+		err := r.Create(ctx)
+		assertion.NoError(err)
+		actualResponse, err := test.UnmarshalBody[*presenter.ProductResponseWrapper](resp.Body.Bytes())
+		assertion.NoError(err)
+
 		req := &payload.UpdateProductRequest{
-			ID:          testProductID.String(),
+			ID:          actualResponse.Product.ID.String(),
 			Name:        testProductName,
 			ProductType: testProductType,
 			ProducerID:  producerID.String(),
 		}
-		resp, ctx := setupUpdate(req, producerID.String())
+		resp, ctx = setupUpdate(req, actualResponse.Product.ID.String())
 
 		// Act
-		err := r.Update(ctx)
+		err = r.Update(ctx)
 
 		// Assert
 		assertion.NoError(err)
