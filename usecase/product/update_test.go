@@ -44,7 +44,6 @@ func (s *TestSuite) TestUpdate() {
 			Name:        testName,
 			ProductType: testProductType,
 			ProducerID:  uuid.MustParse(testProducerID),
-			CreatedBy:   userID,
 			UpdatedBy:   userID,
 		}
 		mockProduct.EXPECT().Update(s.ctx, productModel).ReturnArguments = mock.Arguments{nil}
