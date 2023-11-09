@@ -36,3 +36,16 @@ func (r *pgRepository) GetByID(ctx context.Context, id uuid.UUID) (model.Product
 	}
 	return product, nil
 }
+
+func (r *pgRepository) CreateList(ctx context.Context, ps []model.Product) error {
+	return r.getDB(ctx).Create(&ps).Error
+}
+
+func (r *pgRepository) GetList(ctx context.Context) ([]model.Product, error) {
+	products := []model.Product{}
+	err := r.getDB(ctx).Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}

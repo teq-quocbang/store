@@ -16,3 +16,9 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 	group.PUT("/:id", r.Update)
 	group.DELETE("/:id", r.Delete)
 }
+
+func ProductsInit(group *echo.Group, useCase *usecase.UseCase) {
+	r := &Route{UseCase: useCase}
+
+	group.POST("", r.CreateList)
+}

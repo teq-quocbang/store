@@ -62,6 +62,7 @@ func NewHTTPHandler(useCase *usecase.UseCase) *echo.Echo {
 	account.Init(api.Group("/user"), useCase)
 	product.Init(api.Group("/product", auth.Auth), useCase)
 	producer.Init(api.Group("/producer", auth.Auth), useCase)
+	product.ProductsInit(api.Group("/products", auth.Auth), useCase)
 
 	return e
 }
