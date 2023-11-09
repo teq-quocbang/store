@@ -47,6 +47,12 @@ func (s *TestSuite) TestUpdate() {
 			UpdatedBy:   userID,
 		}
 		mockProduct.EXPECT().Update(s.ctx, productModel).ReturnArguments = mock.Arguments{nil}
+		mockProduct.EXPECT().GetByID(s.ctx, productID).ReturnArguments = mock.Arguments{model.Product{
+			ID:          productID,
+			Name:        fake.Name(),
+			ProductType: fake.Car().Type,
+			ProducerID:  uuid.MustParse(testProducerID),
+		}, nil}
 		u := s.useCase(mockProduct)
 
 		// Act
