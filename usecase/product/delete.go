@@ -16,6 +16,11 @@ func (u *UseCase) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return myerror.ErrProductInvalidParam(err.Error())
 	}
+	_, err = u.Product.GetByID(ctx, productID)
+	if err != nil {
+		return myerror.ErrProductGet(err)
+	}
+
 	if err := u.Product.Delete(ctx, productID); err != nil {
 		return myerror.ErrProductDelete(err)
 	}

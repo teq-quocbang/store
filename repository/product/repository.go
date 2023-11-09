@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	Create(context.Context, *model.Product) error
+	GetByID(ctx context.Context, id uuid.UUID) (model.Product, error)
 	Update(context.Context, *model.Product) error
 	Delete(context.Context, uuid.UUID) error
 }
