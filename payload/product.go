@@ -24,3 +24,18 @@ func (p UpdateProductRequest) Validate() error {
 	var validate = validator.New()
 	return validate.Struct(p)
 }
+
+type Product struct {
+	Name        string `json:"name" validate:"required"`
+	ProductType string `json:"product_type" validate:"required"`
+	ProducerID  string `json:"producer_id" validate:"required"`
+}
+
+type CreateListProductRequest struct {
+	Products []Product `json:"products" validate:"required,dive"`
+}
+
+func (p CreateListProductRequest) Validate() error {
+	var validate = validator.New()
+	return validate.Struct(p)
+}

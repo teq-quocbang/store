@@ -67,6 +67,49 @@ func (_c *MockRepository_Create_Call) RunAndReturn(run func(context.Context, *mo
 	return _c
 }
 
+// CreateList provides a mock function with given fields: _a0, _a1
+func (_m *MockRepository) CreateList(_a0 context.Context, _a1 []model.Product) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []model.Product) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_CreateList_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateList'
+type MockRepository_CreateList_Call struct {
+	*mock.Call
+}
+
+// CreateList is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 []model.Product
+func (_e *MockRepository_Expecter) CreateList(_a0 interface{}, _a1 interface{}) *MockRepository_CreateList_Call {
+	return &MockRepository_CreateList_Call{Call: _e.mock.On("CreateList", _a0, _a1)}
+}
+
+func (_c *MockRepository_CreateList_Call) Run(run func(_a0 context.Context, _a1 []model.Product)) *MockRepository_CreateList_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]model.Product))
+	})
+	return _c
+}
+
+func (_c *MockRepository_CreateList_Call) Return(_a0 error) *MockRepository_CreateList_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_CreateList_Call) RunAndReturn(run func(context.Context, []model.Product) error) *MockRepository_CreateList_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: _a0, _a1
 func (_m *MockRepository) Delete(_a0 context.Context, _a1 uuid.UUID) error {
 	ret := _m.Called(_a0, _a1)
@@ -159,6 +202,60 @@ func (_c *MockRepository_GetByID_Call) Return(_a0 model.Product, _a1 error) *Moc
 }
 
 func (_c *MockRepository_GetByID_Call) RunAndReturn(run func(context.Context, uuid.UUID) (model.Product, error)) *MockRepository_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetList provides a mock function with given fields: _a0
+func (_m *MockRepository) GetList(_a0 context.Context) ([]model.Product, error) {
+	ret := _m.Called(_a0)
+
+	var r0 []model.Product
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]model.Product, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []model.Product); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Product)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_GetList_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetList'
+type MockRepository_GetList_Call struct {
+	*mock.Call
+}
+
+// GetList is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *MockRepository_Expecter) GetList(_a0 interface{}) *MockRepository_GetList_Call {
+	return &MockRepository_GetList_Call{Call: _e.mock.On("GetList", _a0)}
+}
+
+func (_c *MockRepository_GetList_Call) Run(run func(_a0 context.Context)) *MockRepository_GetList_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetList_Call) Return(_a0 []model.Product, _a1 error) *MockRepository_GetList_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_GetList_Call) RunAndReturn(run func(context.Context) ([]model.Product, error)) *MockRepository_GetList_Call {
 	_c.Call.Return(run)
 	return _c
 }
