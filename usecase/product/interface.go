@@ -10,4 +10,5 @@ import (
 type IUseCase interface {
 	Create(context.Context, *payload.CreateProductRequest) (*presenter.ProductResponseWrapper, error)
 	Update(context.Context, *payload.UpdateProductRequest) (*presenter.ProductResponseWrapper, error)
+	Delete(context.Context, string) error
 }
