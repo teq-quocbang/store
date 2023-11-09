@@ -2,51 +2,16 @@ package product
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
 	"github.com/google/uuid"
+
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
 	"github.com/teq-quocbang/store/presenter"
 	"github.com/teq-quocbang/store/util/contexts"
 	"github.com/teq-quocbang/store/util/myerror"
+	"github.com/teq-quocbang/store/util/replace"
 )
-
-func replace[T1 any, T2 any](t1 T1, t2 T2) (T2, error) {
-	if reflect.TypeOf(*new(T1)).Kind() == reflect.Pointer ||
-		reflect.TypeOf(*new(T2)).Kind() == reflect.Pointer {
-		return t2, fmt.Errorf("can not send pointer type")
-	}
-	valueT1 := reflect.ValueOf(t1)
-	typeT1 := reflect.TypeOf(t1)
-	valueT2 := reflect.ValueOf(&t2)
-	typeT2 := reflect.TypeOf(t2)
-
-	for i := 0; i < valueT1.NumField(); i++ {
-		fieldT1 := valueT1.Field(i)
-		tag1 := typeT1.Field(i).Tag.Get("json")
-
-		// if is different
-		if !fieldT1.IsZero() {
-			// check all field of model if found json tag is same let replace at t2(model) value
-			for i := 0; i < valueT2.Elem().NumField(); i++ {
-				tag2 := typeT2.Field(i).Tag.Get("json")
-				if tag1 == tag2 {
-					if valueT2.Elem().Field(i).CanSet() {
-						if valueT2.Elem().Field(i).Type() != fieldT1.Type() {
-							break // TODO: need to same type
-						}
-						valueT2.Elem().Field(i).Set(fieldT1)
-					}
-					break
-				}
-			}
-		}
-	}
-
-	return t2, nil // return model with replaced value
-}
 
 func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdateProductRequest, productID uuid.UUID) (*model.Product, error) {
 	producer := uuid.UUID{}
@@ -64,7 +29,7 @@ func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdateProduct
 	if err != nil {
 		return nil, myerror.ErrProductGet(err)
 	}
-	productModel, err := replace[payload.UpdateProductRequest, model.Product](*req, product)
+	productModel, err := replace.Replace[payload.UpdateProductRequest, model.Product](*req, product)
 	if err != nil {
 		return nil, myerror.ErrProductInvalidParam(err.Error())
 	}
