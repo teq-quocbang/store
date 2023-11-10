@@ -7,6 +7,6 @@ type ProductResponseWrapper struct {
 }
 
 type ListProductResponseWrapper struct {
-	Product []model.Product `json:"product"`
+	Product []model.Product `json:"product" yaml:"product"`
 	Meta    interface{}     `json:"meta"`
 }

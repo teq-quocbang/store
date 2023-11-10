@@ -1,48 +1,126 @@
 package product
 
-// TODO: do test it later because need create csv file function
-// func TestCreateList(t *testing.T) {
-// 	assertion := assert.New(t)
-// 	db := database.InitDatabase()
-// 	defer db.TruncateTables()
+import (
+	"bytes"
+	"encoding/csv"
+	"io"
+	"log"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
 
-// 	repo := repository.New(db.GetClient)
-// 	r := Route{
-// 		UseCase: usecase.New(repo, nil),
-// 	}
+	fake "github.com/brianvoe/gofakeit/v6"
 
-// 	accountID, producerID, err := SetUpForeignKeyData(db)
-// 	assertion.NoError(err)
+	"github.com/stretchr/testify/assert"
+	"github.com/teq-quocbang/store/delivery/http/auth"
+	"github.com/teq-quocbang/store/fixture/database"
+	"github.com/teq-quocbang/store/repository"
+	"github.com/teq-quocbang/store/usecase"
+	"github.com/teq-quocbang/store/util/token"
 
-// 	userPrinciple := &token.JWTClaimCustom{
-// 		SessionID: uuid.New(),
-// 		User: token.UserInfo{
-// 			Username: gofakeit.Name(),
-// 			ID:       accountID,
-// 			Email:    gofakeit.Email(),
-// 		},
-// 	}
-// 	monkey.Patch(contexts.GetUserPrincipleByContext, func(context.Context) *token.JWTClaimCustom {
-// 		return userPrinciple
-// 	})
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+)
 
-// 	defer monkey.UnpatchAll()
+func TestCreateList(t *testing.T) {
+	assertion := assert.New(t)
+	db := database.InitDatabase()
+	defer db.TruncateTables()
 
-// 	// good case
-// 	{
-// 		// Arrange
+	repo := repository.New(db.GetClient)
+	r := Route{
+		UseCase: usecase.New(repo, nil),
+	}
 
-// 		// Act
+	accountID, producerID, err := SetUpForeignKeyData(db)
+	assertion.NoError(err)
 
-// 		// Assert
-// 	}
+	userPrinciple := &token.JWTClaimCustom{
+		SessionID: uuid.New(),
+		User: token.UserInfo{
+			Username: fake.Name(),
+			ID:       accountID,
+			Email:    fake.Email(),
+		},
+	}
 
-// 	// bad case
-// 	{
-// 		// Arrange
+	// good case
+	{
+		// Arrange
+		resp, ctx := setupTestCreateList(producerID, 10)
+		ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
 
-// 		// Act
+		// Act
+		err := r.CreateList(ctx)
 
-// 		// Assert
-// 	}
-// }
+		// Assert
+		assertion.NoError(err)
+		assertion.Equal(200, resp.Code)
+	}
+
+	// bad case
+	{
+		// Arrange
+
+		// Act
+
+		// Assert
+	}
+}
+
+func setupTestCreateList(producerID uuid.UUID, orderRows int) (*httptest.ResponseRecorder, echo.Context) {
+	e := echo.New()
+	records := make([][]string, orderRows)
+	for i := 0; i < orderRows; i++ {
+		records[i] = []string{fake.Name(), fake.Car().Type, producerID.String()}
+	}
+
+	f, err := os.Create("test.csv")
+	if err != nil {
+		log.Fatalf("failed to create, error: %v", err)
+	}
+	defer f.Close()
+
+	wr := csv.NewWriter(f)
+	err = wr.WriteAll(records)
+	if err != nil {
+		log.Fatalf("failed to write records, error: %v", err)
+	}
+
+	var requestBody bytes.Buffer
+	writer := multipart.NewWriter(&requestBody)
+
+	file, err := os.Open("test.csv")
+	if err != nil {
+		log.Fatalf("failed to open csv, error: %v", err)
+	}
+	defer file.Close()
+
+	part, err := writer.CreateFormFile("file", "test.csv")
+	if err != nil {
+		log.Fatalf("failed to create from file, error: %v", err)
+	}
+
+	_, err = io.Copy(part, file)
+	if err != nil {
+		log.Fatalf("error copying file content: %v", err)
+	}
+	writer.Close()
+
+	// remove test file
+	err = os.Remove("test.csv")
+	if err != nil {
+		log.Fatalf("failed to remove csv file error: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodPost, "/api/products", &requestBody)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEMultipartForm)
+
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+
+	return rec, c
+}

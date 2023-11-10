@@ -12,4 +12,5 @@ type IUseCase interface {
 	CreateList(context.Context, *payload.CreateListProductRequest) (*presenter.ListProductResponseWrapper, error)
 	Update(context.Context, *payload.UpdateProductRequest) (*presenter.ProductResponseWrapper, error)
 	Delete(context.Context, string) error
+	Export(context.Context, *payload.ExportProductRequest) (*presenter.ListProductResponseWrapper, error)
 }
