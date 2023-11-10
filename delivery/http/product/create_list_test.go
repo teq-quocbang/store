@@ -12,16 +12,15 @@ import (
 	"testing"
 
 	fake "github.com/brianvoe/gofakeit/v6"
-
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+
 	"github.com/teq-quocbang/store/delivery/http/auth"
 	"github.com/teq-quocbang/store/fixture/database"
 	"github.com/teq-quocbang/store/repository"
 	"github.com/teq-quocbang/store/usecase"
 	"github.com/teq-quocbang/store/util/token"
-
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 func TestCreateList(t *testing.T) {
@@ -59,39 +58,35 @@ func TestCreateList(t *testing.T) {
 		assertion.NoError(err)
 		assertion.Equal(200, resp.Code)
 	}
-
-	// bad case
-	{
-		// Arrange
-
-		// Act
-
-		// Assert
-	}
 }
 
 func setupTestCreateList(producerID uuid.UUID, orderRows int) (*httptest.ResponseRecorder, echo.Context) {
 	e := echo.New()
+	// prepare csv data
 	records := make([][]string, orderRows)
 	for i := 0; i < orderRows; i++ {
 		records[i] = []string{fake.Name(), fake.Car().Type, producerID.String()}
 	}
 
+	// create null csv file
 	f, err := os.Create("test.csv")
 	if err != nil {
 		log.Fatalf("failed to create, error: %v", err)
 	}
 	defer f.Close()
 
+	// write data to csv file
 	wr := csv.NewWriter(f)
 	err = wr.WriteAll(records)
 	if err != nil {
 		log.Fatalf("failed to write records, error: %v", err)
 	}
 
+	// create null request body
 	var requestBody bytes.Buffer
 	writer := multipart.NewWriter(&requestBody)
 
+	// open csv file
 	file, err := os.Open("test.csv")
 	if err != nil {
 		log.Fatalf("failed to open csv, error: %v", err)
@@ -103,6 +98,7 @@ func setupTestCreateList(producerID uuid.UUID, orderRows int) (*httptest.Respons
 		log.Fatalf("failed to create from file, error: %v", err)
 	}
 
+	// copy csv file to part
 	_, err = io.Copy(part, file)
 	if err != nil {
 		log.Fatalf("error copying file content: %v", err)
@@ -116,8 +112,7 @@ func setupTestCreateList(producerID uuid.UUID, orderRows int) (*httptest.Respons
 	}
 
 	req := httptest.NewRequest(http.MethodPost, "/api/products", &requestBody)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEMultipartForm)
-
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
