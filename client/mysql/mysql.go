@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"github.com/teq-quocbang/store/client/logging"
 	"github.com/teq-quocbang/store/config"
 	"github.com/teq-quocbang/store/util"
 )
@@ -31,7 +32,9 @@ func init() {
 		cfg.MySQL.DBName,
 	)
 
-	db, err = gorm.Open(mysql.New(mysql.Config{DSN: connectionString}), &gorm.Config{})
+	db, err = gorm.Open(mysql.New(mysql.Config{DSN: connectionString}), &gorm.Config{
+		Logger: logging.NewGormLogger(),
+	})
 	if err != nil {
 		teqsentry.Fatal(err)
 		teqlogger.GetLogger().Fatal(err.Error())

@@ -76,3 +76,13 @@ func ErrProductConflictUniqueConstraint(message string) teqerror.TeqError {
 		IsSentry:  false,
 	}
 }
+
+func ErrProductExportFailed(err error) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       err,
+		HTTPCode:  http.StatusInternalServerError,
+		ErrorCode: "30006",
+		Message:   "Failed to export file",
+		IsSentry:  false,
+	}
+}

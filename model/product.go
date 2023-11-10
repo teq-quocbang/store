@@ -9,14 +9,14 @@ import (
 )
 
 type Product struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	ProductType string    `json:"product_type"`
-	ProducerID  uuid.UUID `json:"producer_id"`
-	CreatedAt   time.Time `json:"created_at"`
-	CreatedBy   uuid.UUID `json:"created_by"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	UpdatedBy   uuid.UUID `json:"updated_by"`
+	ID          uuid.UUID `json:"id" yaml:"id"`
+	Name        string    `json:"name" yaml:"name"`
+	ProductType string    `json:"product_type" yaml:"product_type"`
+	ProducerID  uuid.UUID `json:"producer_id" yaml:"producer_id"`
+	CreatedAt   time.Time `json:"created_at" yaml:"created_at"`
+	CreatedBy   uuid.UUID `json:"created_by" yaml:"created_by"`
+	UpdatedAt   time.Time `json:"updated_at" yaml:"updated_at"`
+	UpdatedBy   uuid.UUID `json:"updated_by" yaml:"updated_by"`
 }
 
 func (Product) TableName() string {

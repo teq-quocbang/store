@@ -39,3 +39,19 @@ func (p CreateListProductRequest) Validate() error {
 	var validate = validator.New()
 	return validate.Struct(p)
 }
+
+type ExportProductRequest struct {
+	FileExtension string `json:"file_extension"`
+}
+
+func (e *ExportProductRequest) IsYAML() bool {
+	return e.FileExtension == "yaml"
+}
+
+func (e *ExportProductRequest) IsJSON() bool {
+	return e.FileExtension == "json"
+}
+
+func (e *ExportProductRequest) IsCSV() bool {
+	return e.FileExtension == "csv"
+}
