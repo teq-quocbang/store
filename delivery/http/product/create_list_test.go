@@ -12,6 +12,7 @@ import (
 	"os"
 	"testing"
 
+	"bou.ke/monkey"
 	fake "github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -191,6 +192,80 @@ func setupTestCreateListWithImportFile(producerID uuid.UUID, orderRows int) (*ht
 
 	req := httptest.NewRequest(http.MethodPost, "/api/products", &requestBody)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+
+	return rec, c
+}
+
+func TestCreateListThirtyPart(t *testing.T) {
+	assertion := assert.New(t)
+	db := database.InitDatabase()
+	defer db.TruncateTables()
+
+	repo := repository.New(db.GetClient)
+	r := Route{
+		UseCase: usecase.New(repo, nil),
+	}
+
+	strProducerID := "2e51ab2e-11a0-4c7e-823e-b5643e40489b"
+	producerID, err := uuid.Parse(strProducerID)
+	assertion.NoError(err)
+	monkey.Patch(uuid.New, func() uuid.UUID {
+		return producerID
+	})
+
+	accountID, _, err := SetUpForeignKeyData(db)
+	assertion.NoError(err)
+	monkey.UnpatchAll()
+
+	userPrinciple := &token.JWTClaimCustom{
+		SessionID: uuid.New(),
+		User: token.UserInfo{
+			Username: fake.Name(),
+			ID:       accountID,
+			Email:    fake.Email(),
+		},
+	}
+
+	// good case
+	{
+		// Arrange
+		req := &payload.CreateListWithThirtyPartRequest{
+			ThirtyParts: []payload.ThirtyPartRequire{
+				{
+					Url: "https://api.eazymock.net/mock/d60c7e6e-6819-4a59-b3ba-fc31fe0f019c/api/products",
+				},
+				{
+					Url: "https://api.eazymock.net/mock/d60c7e6e-6819-4a59-b3ba-fc31fe0f019c/api/products/macbooks",
+					Params: map[string]string{
+						"product_type": "macbook",
+					},
+				},
+			},
+		}
+		resp, ctx := setupCreateListWithThirtyPart(req)
+		ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
+
+		// Act
+		err := r.CreateListWithThirtyPart(ctx)
+
+		// Assert
+		assertion.NoError(err)
+		assertion.Equal(200, resp.Code)
+		actual, err := test.UnmarshalBody[*presenter.ListProductResponseWrapper](resp.Body.Bytes())
+		assertion.NoError(err)
+		assertion.NotNil(actual.Product)
+	}
+}
+
+func setupCreateListWithThirtyPart(input *payload.CreateListWithThirtyPartRequest) (*httptest.ResponseRecorder, echo.Context) {
+	e := echo.New()
+	b, _ := json.Marshal(input)
+	req := httptest.NewRequest(http.MethodPost, "/api/products/thirty-part", bytes.NewReader(b))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
