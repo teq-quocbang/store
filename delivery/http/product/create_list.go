@@ -12,17 +12,16 @@ import (
 	"github.com/teq-quocbang/store/util/myerror"
 )
 
-// Create List Product
+// Create List Product With Import File
 // @Summary Create List Product
 // @Description create a Product
 // @Tags Product
 // @Accept  json
 // @Produce json
 // @Security AuthToken
-// @Param req body payload.CreateProductRequest true "Product info"
 // @Success 200 {object} presenter.ListProductResponseWrapper
-// @Router /products [post] .
-func (r *Route) CreateList(c echo.Context) error {
+// @Router /products/import [post] .
+func (r *Route) CreateListWithImportFile(c echo.Context) error {
 	var (
 		ctx  = &teq.CustomEchoContext{Context: c}
 		resp *presenter.ListProductResponseWrapper
@@ -61,6 +60,35 @@ func (r *Route) CreateList(c echo.Context) error {
 	}
 
 	resp, err = r.UseCase.Product.CreateList(ctx, req)
+	if err != nil {
+		return teq.Response.Error(c, err.(teqerror.TeqError))
+	}
+
+	return teq.Response.Success(c, resp)
+}
+
+// Create List Product
+// @Summary Create List Product
+// @Description create a Product
+// @Tags Product
+// @Accept  json
+// @Produce json
+// @Security AuthToken
+// @Param req body payload.CreateProductRequest true "Product info"
+// @Success 200 {object} presenter.ListProductResponseWrapper
+// @Router /products [post] .
+func (r *Route) CreateList(c echo.Context) error {
+	var (
+		ctx  = &teq.CustomEchoContext{Context: c}
+		req  = &payload.CreateListProductRequest{}
+		resp *presenter.ListProductResponseWrapper
+	)
+
+	if err := c.Bind(&req); err != nil {
+		return teq.Response.Error(ctx, teqerror.ErrInvalidParams(err))
+	}
+
+	resp, err := r.UseCase.Product.CreateList(ctx, req)
 	if err != nil {
 		return teq.Response.Error(c, err.(teqerror.TeqError))
 	}

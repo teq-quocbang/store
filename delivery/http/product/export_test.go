@@ -45,9 +45,9 @@ func TestExport(t *testing.T) {
 			},
 		}
 
-		_, ctx := setupTestCreateList(producerID, 20)
+		_, ctx := setupTestCreateListWithImportFile(producerID, 20)
 		ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
-		err = r.CreateList(ctx)
+		err = r.CreateListWithImportFile(ctx)
 		assertion.NoError(err)
 
 		req := &payload.ExportProductRequest{
