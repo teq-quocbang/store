@@ -3,6 +3,7 @@ package product
 import (
 	"bytes"
 	"encoding/csv"
+	"encoding/json"
 	"io"
 	"log"
 	"mime/multipart"
@@ -18,10 +19,50 @@ import (
 
 	"github.com/teq-quocbang/store/delivery/http/auth"
 	"github.com/teq-quocbang/store/fixture/database"
+	"github.com/teq-quocbang/store/payload"
+	"github.com/teq-quocbang/store/presenter"
 	"github.com/teq-quocbang/store/repository"
 	"github.com/teq-quocbang/store/usecase"
+	"github.com/teq-quocbang/store/util/test"
 	"github.com/teq-quocbang/store/util/token"
 )
+
+func TestCreateListWithImportFile(t *testing.T) {
+	assertion := assert.New(t)
+	db := database.InitDatabase()
+	defer db.TruncateTables()
+
+	repo := repository.New(db.GetClient)
+	r := Route{
+		UseCase: usecase.New(repo, nil),
+	}
+
+	accountID, producerID, err := SetUpForeignKeyData(db)
+	assertion.NoError(err)
+
+	userPrinciple := &token.JWTClaimCustom{
+		SessionID: uuid.New(),
+		User: token.UserInfo{
+			Username: fake.Name(),
+			ID:       accountID,
+			Email:    fake.Email(),
+		},
+	}
+
+	// good case
+	{
+		// Arrange
+		resp, ctx := setupTestCreateListWithImportFile(producerID, 10)
+		ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
+
+		// Act
+		err := r.CreateListWithImportFile(ctx)
+
+		// Assert
+		assertion.NoError(err)
+		assertion.Equal(200, resp.Code)
+	}
+}
 
 func TestCreateList(t *testing.T) {
 	assertion := assert.New(t)
@@ -48,7 +89,17 @@ func TestCreateList(t *testing.T) {
 	// good case
 	{
 		// Arrange
-		resp, ctx := setupTestCreateList(producerID, 10)
+		req := &payload.CreateListProductRequest{
+			Products: make([]payload.Product, 10),
+		}
+		for i := 0; i < 10; i++ {
+			req.Products[i] = payload.Product{
+				Name:        fake.Name(),
+				ProductType: fake.Car().Type,
+				ProducerID:  producerID.String(),
+			}
+		}
+		resp, ctx := setupCreateList(req)
 		ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
 
 		// Act
@@ -56,11 +107,38 @@ func TestCreateList(t *testing.T) {
 
 		// Assert
 		assertion.NoError(err)
+		actual, err := test.UnmarshalBody[*presenter.ListProductResponseWrapper](resp.Body.Bytes())
+		assertion.NoError(err)
 		assertion.Equal(200, resp.Code)
+		assertion.Equal(10, len(actual.Product))
+	}
+
+	// bad case
+	{
+		// Arrange
+		resp, ctx := setupCreateList(&payload.CreateListProductRequest{})
+
+		// Act
+		r.CreateList(ctx)
+
+		// Assert
+		assertion.Equal(400, resp.Code)
 	}
 }
 
-func setupTestCreateList(producerID uuid.UUID, orderRows int) (*httptest.ResponseRecorder, echo.Context) {
+func setupCreateList(input *payload.CreateListProductRequest) (*httptest.ResponseRecorder, echo.Context) {
+	e := echo.New()
+	b, _ := json.Marshal(input)
+	req := httptest.NewRequest(http.MethodPost, "/api/products", bytes.NewReader(b))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+
+	return rec, c
+}
+
+func setupTestCreateListWithImportFile(producerID uuid.UUID, orderRows int) (*httptest.ResponseRecorder, echo.Context) {
 	e := echo.New()
 	// prepare csv data
 	records := make([][]string, orderRows)
