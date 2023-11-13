@@ -16,6 +16,7 @@ import (
 	"github.com/teq-quocbang/store/delivery/http/healthcheck"
 	"github.com/teq-quocbang/store/delivery/http/producer"
 	"github.com/teq-quocbang/store/delivery/http/product"
+	"github.com/teq-quocbang/store/delivery/http/storage"
 	"github.com/teq-quocbang/store/usecase"
 )
 
@@ -63,6 +64,7 @@ func NewHTTPHandler(useCase *usecase.UseCase) *echo.Echo {
 	product.Init(api.Group("/product", auth.Auth), useCase)
 	producer.Init(api.Group("/producer", auth.Auth), useCase)
 	product.ProductsInit(api.Group("/products", auth.Auth), useCase)
+	storage.Init(api.Group("/storage", auth.Auth), useCase)
 
 	return e
 }
