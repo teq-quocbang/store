@@ -13,5 +13,5 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 	r := &Route{UseCase: useCase}
 
 	group.POST("", r.Upsert)
-	group.GET("/:locat", r.Upsert)
+	group.GET("/:locat", r.GetList)
 }
