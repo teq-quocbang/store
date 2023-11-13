@@ -55,3 +55,26 @@ func (e *ExportProductRequest) IsJSON() bool {
 func (e *ExportProductRequest) IsCSV() bool {
 	return e.FileExtension == "csv"
 }
+
+type ThirtyPartRequire struct {
+	Url     string            `json:"url"`
+	Params  map[string]string `json:"params"`
+	Headers map[string]string `json:"headers"`
+}
+
+func (tpr ThirtyPartRequire) WithParams() bool {
+	return tpr.Params != nil
+}
+
+func (tpr ThirtyPartRequire) WithHeaders() bool {
+	return tpr.Headers != nil
+}
+
+type CreateListWithThirtyPartRequest struct {
+	ThirtyParts []ThirtyPartRequire `json:"thirty_parts" validate:"required,dive"`
+}
+
+func (tr *CreateListWithThirtyPartRequest) Validate() error {
+	var validate = validator.New()
+	return validate.Struct(tr)
+}

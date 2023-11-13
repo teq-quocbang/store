@@ -21,6 +21,7 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 func ProductsInit(group *echo.Group, useCase *usecase.UseCase) {
 	r := &Route{UseCase: useCase}
 
-	group.POST("/import", r.CreateListWithImportFile)
 	group.POST("", r.CreateList)
+	group.POST("/import", r.CreateListWithImportFile)
+	group.POST("/thirty-part", r.CreateListWithThirtyPart)
 }
