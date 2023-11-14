@@ -4,6 +4,7 @@ import (
 	"github.com/teq-quocbang/store/cache"
 	"github.com/teq-quocbang/store/repository"
 	"github.com/teq-quocbang/store/usecase/account"
+	"github.com/teq-quocbang/store/usecase/checkout"
 	"github.com/teq-quocbang/store/usecase/example"
 	"github.com/teq-quocbang/store/usecase/grpc"
 	"github.com/teq-quocbang/store/usecase/producer"
@@ -20,6 +21,7 @@ type UseCase struct {
 	Product  product.IUseCase
 	Producer producer.IUseCase
 	Storage  storage.IUseCase
+	Checkout checkout.IUseCase
 
 	SES mySES.ISES
 	S3  myS3.IS3
@@ -38,6 +40,7 @@ func New(repo *repository.Repository, cache cache.ICache) *UseCase {
 		Product:  product.New(repo, ses),
 		Producer: producer.New(repo, ses),
 		Storage:  storage.New(repo, ses),
+		Checkout: checkout.New(repo, ses),
 		SES:      ses,
 		S3:       s3,
 	}
