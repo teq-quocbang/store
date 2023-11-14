@@ -1,4 +1,4 @@
-package product
+package storage
 
 import (
 	"bytes"
@@ -10,14 +10,14 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/brianvoe/gofakeit/v6"
+	fake "github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/teq-quocbang/store/delivery/http/account"
-	"github.com/teq-quocbang/store/delivery/http/auth"
 	"github.com/teq-quocbang/store/delivery/http/producer"
+	"github.com/teq-quocbang/store/delivery/http/product"
 	"github.com/teq-quocbang/store/fixture/database"
 	"github.com/teq-quocbang/store/payload"
 	"github.com/teq-quocbang/store/presenter"
@@ -38,15 +38,15 @@ func TestCreate(t *testing.T) {
 		UseCase: usecase.New(repo, nil),
 	}
 
-	accountID, producerID, err := SetUpForeignKeyData(db)
+	accountID, _, productID, locat, err := SetUpForeignKeyData(db)
 	assertion.NoError(err)
 
 	userPrinciple := &token.JWTClaimCustom{
 		SessionID: uuid.New(),
 		User: token.UserInfo{
-			Username: gofakeit.Name(),
+			Username: fake.Name(),
 			ID:       accountID,
-			Email:    gofakeit.Email(),
+			Email:    fake.Email(),
 		},
 	}
 	monkey.Patch(contexts.GetUserPrincipleByContext, func(context.Context) *token.JWTClaimCustom {
@@ -58,15 +58,15 @@ func TestCreate(t *testing.T) {
 	// good case
 	{
 		// Arrange
-		req := &payload.CreateProductRequest{
-			Name:        gofakeit.Name(),
-			ProductType: gofakeit.Car().Type,
-			ProducerID:  producerID.String(),
+		req := &payload.UpsertStorageRequest{
+			Locat:     locat,
+			ProductID: productID.String(),
+			Qty:       int64(fake.Uint8()),
 		}
-		resp, ctx := setupCreate(req)
+		resp, ctx := setupUpsert(req)
 
 		// Act
-		err = r.Create(ctx)
+		err = r.Upsert(ctx)
 
 		// Assert
 		assertion.NoError(err)
@@ -76,21 +76,21 @@ func TestCreate(t *testing.T) {
 	// bad case
 	{
 		// Arrange
-		req := &payload.CreateProductRequest{}
-		resp, ctx := setupCreate(req)
+		req := &payload.UpsertStorageRequest{}
+		resp, ctx := setupUpsert(req)
 
 		// Act
-		r.Create(ctx)
+		r.Upsert(ctx)
 
 		// Assert
 		assertion.Equal(400, resp.Code)
 	}
 }
 
-func setupCreate(input *payload.CreateProductRequest) (*httptest.ResponseRecorder, echo.Context) {
+func setupUpsert(input *payload.UpsertStorageRequest) (*httptest.ResponseRecorder, echo.Context) {
 	e := echo.New()
 	b, _ := json.Marshal(input)
-	req := httptest.NewRequest(http.MethodPost, "/api/product", bytes.NewReader(b))
+	req := httptest.NewRequest(http.MethodPost, "/api/storage", bytes.NewReader(b))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
@@ -99,7 +99,7 @@ func setupCreate(input *payload.CreateProductRequest) (*httptest.ResponseRecorde
 	return rec, c
 }
 
-func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, error) {
+func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, uuid.UUID, string, error) {
 	repo := repository.New(db.GetClient)
 	rAccount := account.Route{
 		UseCase: usecase.New(repo, nil),
@@ -107,64 +107,88 @@ func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, error) {
 	rProducer := producer.Route{
 		UseCase: usecase.New(repo, nil),
 	}
+	rProduct := product.Route{
+		UseCase: usecase.New(repo, nil),
+	}
+	rStorage := Route{
+		UseCase: usecase.New(repo, nil),
+	}
 
-	// create account
 	resp, ctx := setUpTestSignUp(&payload.SignUpRequest{
-		Username: gofakeit.Name(),
-		Email:    gofakeit.Email(),
-		Password: gofakeit.Name(),
+		Username: fake.Name(),
+		Email:    fake.Email(),
+		Password: fake.Name(),
 	})
 	err := rAccount.SignUp(ctx)
 	if err != nil {
-		return uuid.UUID{}, uuid.UUID{}, err
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", err
 	}
 	if resp.Code != 200 {
-		return uuid.UUID{}, uuid.UUID{}, fmt.Errorf("failed to sign up, error: %v", resp.Body)
-	}
-	accountResponse, err := test.UnmarshalBody[*presenter.AccountResponseWrapper](resp.Body.Bytes())
-	if err != nil {
-		return uuid.UUID{}, uuid.UUID{}, err
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", fmt.Errorf("failed to sign up, error: %v", resp.Body)
 	}
 
-	// define user principle
+	accountResponse, err := test.UnmarshalBody[*presenter.AccountResponseWrapper](resp.Body.Bytes())
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", err
+	}
+
 	userPrinciple := &token.JWTClaimCustom{
 		SessionID: uuid.New(),
 		User: token.UserInfo{
-			Username: gofakeit.Name(),
+			Username: fake.Name(),
 			ID:       accountResponse.Account.ID,
-			Email:    gofakeit.Email(),
+			Email:    fake.Email(),
 		},
 	}
-
-	// create producer
-	strProducerID := "2e51ab2e-11a0-4c7e-823e-b5643e40489b"
-	producerID, err := uuid.Parse(strProducerID)
-	if err != nil {
-		return uuid.UUID{}, uuid.UUID{}, fmt.Errorf("failed to parse producerID, error: %v", err)
-	}
-	producerUUID := monkey.Patch(uuid.New, func() uuid.UUID {
-		return producerID
+	monkey.Patch(contexts.GetUserPrincipleByContext, func(context.Context) *token.JWTClaimCustom {
+		return userPrinciple
 	})
 
 	producerResp, ctx := setupCreateProducer(&payload.CreateProducerRequest{
-		Name:    gofakeit.Name(),
-		Country: gofakeit.Country(),
+		Name:    fake.Name(),
+		Country: fake.Country(),
 	})
-	ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
 	err = rProducer.Create(ctx)
 	if err != nil {
-		return uuid.UUID{}, uuid.UUID{}, err
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", err
 	}
 	if resp.Code != 200 {
-		return uuid.UUID{}, uuid.UUID{}, fmt.Errorf("failed to create producer, error: %v", producerResp.Body)
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", fmt.Errorf("failed to create producer, error: %v", producerResp.Body)
 	}
 	producerResponse, err := test.UnmarshalBody[*presenter.ProducerResponseWrapper](producerResp.Body.Bytes())
 	if err != nil {
-		return uuid.UUID{}, uuid.UUID{}, err
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", err
 	}
-	monkey.Unpatch(producerUUID)
 
-	return accountResponse.Account.ID, producerResponse.Producer.ID, nil
+	productResp, ctx := setupCreateProduct(&payload.CreateProductRequest{
+		Name:        fake.Name(),
+		ProducerID:  producerResponse.Producer.ID.String(),
+		ProductType: fake.Car().Type,
+	})
+	err = rProduct.Create(ctx)
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", err
+	}
+	productResponse, err := test.UnmarshalBody[*presenter.ProductResponseWrapper](productResp.Body.Bytes())
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", err
+	}
+
+	storageResp, ctx := setupUpsert(&payload.UpsertStorageRequest{
+		Locat:     fmt.Sprintf("%s%d", "A", fake.IntRange(100, 1000)),
+		ProductID: productResponse.Product.ID.String(),
+		Qty:       int64(fake.Uint8()),
+	})
+	err = rStorage.Upsert(ctx)
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", nil
+	}
+	storageResponse, err := test.UnmarshalBody[*presenter.StorageResponseWrapper](storageResp.Body.Bytes())
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, uuid.UUID{}, "", nil
+	}
+
+	return accountResponse.Account.ID, producerResponse.Producer.ID, productResponse.Product.ID, storageResponse.Storage.Locat, nil
 }
 
 func setUpTestSignUp(input *payload.SignUpRequest) (*httptest.ResponseRecorder, echo.Context) {
@@ -183,6 +207,18 @@ func setupCreateProducer(input *payload.CreateProducerRequest) (*httptest.Respon
 	e := echo.New()
 	b, _ := json.Marshal(input)
 	req := httptest.NewRequest(http.MethodPost, "/api/producer", bytes.NewReader(b))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+
+	return rec, c
+}
+
+func setupCreateProduct(input *payload.CreateProductRequest) (*httptest.ResponseRecorder, echo.Context) {
+	e := echo.New()
+	b, _ := json.Marshal(input)
+	req := httptest.NewRequest(http.MethodPost, "/api/product", bytes.NewReader(b))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 

@@ -12,7 +12,6 @@ import (
 	"os"
 	"testing"
 
-	"bou.ke/monkey"
 	fake "github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -209,16 +208,8 @@ func TestCreateListThirtyPart(t *testing.T) {
 		UseCase: usecase.New(repo, nil),
 	}
 
-	strProducerID := "2e51ab2e-11a0-4c7e-823e-b5643e40489b"
-	producerID, err := uuid.Parse(strProducerID)
-	assertion.NoError(err)
-	monkey.Patch(uuid.New, func() uuid.UUID {
-		return producerID
-	})
-
 	accountID, _, err := SetUpForeignKeyData(db)
 	assertion.NoError(err)
-	monkey.UnpatchAll()
 
 	userPrinciple := &token.JWTClaimCustom{
 		SessionID: uuid.New(),
@@ -265,7 +256,6 @@ func setupCreateListWithThirtyPart(input *payload.CreateListWithThirtyPartReques
 	b, _ := json.Marshal(input)
 	req := httptest.NewRequest(http.MethodPost, "/api/products/thirty-part", bytes.NewReader(b))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)

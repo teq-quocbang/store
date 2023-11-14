@@ -27,6 +27,7 @@ var tables = []string{
 	"account",
 	"product",
 	"producer",
+	"storage",
 }
 
 type Database struct {
