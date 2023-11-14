@@ -42,3 +42,7 @@ func (r *pgRepository) GetListCart(ctx context.Context, accountID uuid.UUID) ([]
 	}
 	return carts, nil
 }
+
+func (r *pgRepository) RemoveFromCart(ctx context.Context, accountID uuid.UUID, productID uuid.UUID, qty int64) error {
+	return r.getDB(ctx).Model(&model.Cart{}).Where("account_id = ? and product_id = ?", accountID, productID).Update("qty", gorm.Expr("qty - ?", qty)).Error
+}

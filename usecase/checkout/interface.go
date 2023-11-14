@@ -10,4 +10,5 @@ import (
 type IUseCase interface {
 	AddToCard(context.Context, *payload.AddToCartRequest) (*presenter.CartResponseWrapper, error)
 	GetListCart(context.Context) (*presenter.ListCartResponseWrapper, error)
+	RemoveFromCart(context.Context, *payload.RemoveFormCartRequest) (*presenter.CartResponseWrapper, error)
 }

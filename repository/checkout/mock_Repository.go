@@ -133,6 +133,51 @@ func (_c *MockRepository_GetListCart_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
+// RemoveFromCart provides a mock function with given fields: ctx, accountID, productID, qty
+func (_m *MockRepository) RemoveFromCart(ctx context.Context, accountID uuid.UUID, productID uuid.UUID, qty int64) error {
+	ret := _m.Called(ctx, accountID, productID, qty)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, int64) error); ok {
+		r0 = rf(ctx, accountID, productID, qty)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_RemoveFromCart_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveFromCart'
+type MockRepository_RemoveFromCart_Call struct {
+	*mock.Call
+}
+
+// RemoveFromCart is a helper method to define mock.On call
+//   - ctx context.Context
+//   - accountID uuid.UUID
+//   - productID uuid.UUID
+//   - qty int64
+func (_e *MockRepository_Expecter) RemoveFromCart(ctx interface{}, accountID interface{}, productID interface{}, qty interface{}) *MockRepository_RemoveFromCart_Call {
+	return &MockRepository_RemoveFromCart_Call{Call: _e.mock.On("RemoveFromCart", ctx, accountID, productID, qty)}
+}
+
+func (_c *MockRepository_RemoveFromCart_Call) Run(run func(ctx context.Context, accountID uuid.UUID, productID uuid.UUID, qty int64)) *MockRepository_RemoveFromCart_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID), args[3].(int64))
+	})
+	return _c
+}
+
+func (_c *MockRepository_RemoveFromCart_Call) Return(_a0 error) *MockRepository_RemoveFromCart_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_RemoveFromCart_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, int64) error) *MockRepository_RemoveFromCart_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpsertCart provides a mock function with given fields: _a0, _a1
 func (_m *MockRepository) UpsertCart(_a0 context.Context, _a1 *model.Cart) error {
 	ret := _m.Called(_a0, _a1)
