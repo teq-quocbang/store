@@ -19,8 +19,8 @@ import (
 // @Security no
 // @Param req body payload.AddToCartRequest
 // @Success 200 {object} presenter.CartResponseWrapper
-// @Router /cart [post] .
-func (r *Route) AddToCard(c echo.Context) error {
+// @Router /checkout/add-to-cart [post] .
+func (r *Route) AddToCart(c echo.Context) error {
 	var (
 		ctx  = &teq.CustomEchoContext{Context: c}
 		req  = &payload.AddToCartRequest{}

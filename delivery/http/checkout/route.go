@@ -12,5 +12,6 @@ type Route struct {
 func Init(group *echo.Group, useCase *usecase.UseCase) {
 	r := &Route{UseCase: useCase}
 
-	group.POST("/add-to-cart", r.AddToCard)
+	group.POST("/add-to-cart", r.AddToCart)
+	group.GET("/carts", r.GetList)
 }

@@ -11,3 +11,12 @@ func (a AddToCartRequest) Validate() error {
 	validate := validator.New()
 	return validate.Struct(a)
 }
+
+type GetCartRequest struct {
+	ProductID string `json:"product_id" validate:"required"`
+}
+
+func (c GetCartRequest) Validate() error {
+	validate := validator.New()
+	return validate.Struct(c)
+}
