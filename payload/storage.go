@@ -12,3 +12,12 @@ func (s UpsertStorageRequest) Validate() error {
 	var validate = validator.New()
 	return validate.Struct(s)
 }
+
+type GetStorageByLocatRequest struct {
+	Locat string `json:"locat,omitempty" query:"locat"`
+}
+
+func (s GetStorageByLocatRequest) Validate() error {
+	var validate = validator.New()
+	return validate.Struct(s)
+}

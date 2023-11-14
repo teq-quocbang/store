@@ -4,6 +4,7 @@ import (
 	"git.teqnological.asia/teq-go/teq-pkg/teq"
 	"git.teqnological.asia/teq-go/teq-pkg/teqerror"
 	"github.com/labstack/echo/v4"
+	"github.com/teq-quocbang/store/payload"
 	"github.com/teq-quocbang/store/presenter"
 )
 
@@ -15,15 +16,18 @@ import (
 // @Produce json
 // @Security AuthToken
 // @Success 200 {object} presenter.ListStorageResponseWrapper
-// @Router /storage/:locat [get] .
+// @Router /storage [get] .
 func (r *Route) GetList(c echo.Context) error {
 	var (
 		ctx  = &teq.CustomEchoContext{Context: c}
-		req  = c.Param("locat")
+		req  = payload.GetStorageByLocatRequest{}
 		resp *presenter.ListStorageResponseWrapper
 	)
 
-	resp, err := r.UseCase.Storage.GetListByLocat(ctx, req)
+	if err := c.Bind(&req); err != nil {
+		return teq.Response.Error(ctx, teqerror.ErrInvalidParams(err))
+	}
+	resp, err := r.UseCase.Storage.GetListByLocat(ctx, &req)
 	if err != nil {
 		return teq.Response.Error(c, err.(teqerror.TeqError))
 	}

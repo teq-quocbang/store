@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/teq-quocbang/store/model"
+	"github.com/teq-quocbang/store/payload"
 	"github.com/teq-quocbang/store/presenter"
 	"github.com/teq-quocbang/store/repository/storage"
 	"github.com/teq-quocbang/store/util/contexts"
-	"github.com/teq-quocbang/store/util/myerror"
 	"github.com/teq-quocbang/store/util/token"
 )
 
@@ -47,10 +47,13 @@ func (s *TestSuite) TestGetListByLocat() {
 					InventoryQty: int64(testQty),
 				},
 			}, nil}
+		req := &payload.GetStorageByLocatRequest{
+			Locat: testLocat,
+		}
 		u := s.useCase(mockStorage)
 
 		// Act
-		reply, err := u.GetListByLocat(s.ctx, testLocat)
+		reply, err := u.GetListByLocat(s.ctx, req)
 
 		// Assert
 		assertion.NoError(err)
@@ -72,10 +75,10 @@ func (s *TestSuite) TestGetListByLocat() {
 		u := s.useCase(storage.NewMockRepository(s.T()))
 
 		// Act
-		_, err := u.GetListByLocat(s.ctx, "")
+		reply, err := u.GetListByLocat(s.ctx, &payload.GetStorageByLocatRequest{})
 
 		// Assert
-		assertion.Error(err)
-		assertion.Equal(myerror.ErrStorageInvalidParam("missing locat"), err)
+		assertion.NoError(err) // a special return with return null according business logic
+		assertion.Equal(&presenter.ListStorageResponseWrapper{}, reply)
 	}
 }

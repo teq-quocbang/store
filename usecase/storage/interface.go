@@ -9,5 +9,5 @@ import (
 
 type IUseCase interface {
 	UpsertStorage(context.Context, *payload.UpsertStorageRequest) (*presenter.StorageResponseWrapper, error)
-	GetListByLocat(ctx context.Context, local string) (*presenter.ListStorageResponseWrapper, error)
+	GetListByLocat(context.Context, *payload.GetStorageByLocatRequest) (*presenter.ListStorageResponseWrapper, error)
 }
