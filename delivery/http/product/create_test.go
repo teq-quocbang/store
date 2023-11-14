@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/teq-quocbang/store/delivery/http/account"
+	"github.com/teq-quocbang/store/delivery/http/auth"
 	"github.com/teq-quocbang/store/delivery/http/producer"
 	"github.com/teq-quocbang/store/fixture/database"
 	"github.com/teq-quocbang/store/payload"
@@ -107,6 +108,7 @@ func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, error) {
 		UseCase: usecase.New(repo, nil),
 	}
 
+	// create account
 	resp, ctx := setUpTestSignUp(&payload.SignUpRequest{
 		Username: gofakeit.Name(),
 		Email:    gofakeit.Email(),
@@ -119,12 +121,12 @@ func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, error) {
 	if resp.Code != 200 {
 		return uuid.UUID{}, uuid.UUID{}, fmt.Errorf("failed to sign up, error: %v", resp.Body)
 	}
-
 	accountResponse, err := test.UnmarshalBody[*presenter.AccountResponseWrapper](resp.Body.Bytes())
 	if err != nil {
 		return uuid.UUID{}, uuid.UUID{}, err
 	}
 
+	// define user principle
 	userPrinciple := &token.JWTClaimCustom{
 		SessionID: uuid.New(),
 		User: token.UserInfo{
@@ -133,14 +135,22 @@ func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, error) {
 			Email:    gofakeit.Email(),
 		},
 	}
-	monkey.Patch(contexts.GetUserPrincipleByContext, func(context.Context) *token.JWTClaimCustom {
-		return userPrinciple
+
+	// create producer
+	strProducerID := "2e51ab2e-11a0-4c7e-823e-b5643e40489b"
+	producerID, err := uuid.Parse(strProducerID)
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, fmt.Errorf("failed to parse producerID, error: %v", err)
+	}
+	producerUUID := monkey.Patch(uuid.New, func() uuid.UUID {
+		return producerID
 	})
 
 	producerResp, ctx := setupCreateProducer(&payload.CreateProducerRequest{
 		Name:    gofakeit.Name(),
 		Country: gofakeit.Country(),
 	})
+	ctx.Set(string(auth.UserPrincipleKey), userPrinciple)
 	err = rProducer.Create(ctx)
 	if err != nil {
 		return uuid.UUID{}, uuid.UUID{}, err
@@ -152,6 +162,7 @@ func SetUpForeignKeyData(db *database.Database) (uuid.UUID, uuid.UUID, error) {
 	if err != nil {
 		return uuid.UUID{}, uuid.UUID{}, err
 	}
+	monkey.Unpatch(producerUUID)
 
 	return accountResponse.Account.ID, producerResponse.Producer.ID, nil
 }
