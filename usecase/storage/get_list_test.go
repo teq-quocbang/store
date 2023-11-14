@@ -53,7 +53,7 @@ func (s *TestSuite) TestGetListByLocat() {
 		u := s.useCase(mockStorage)
 
 		// Act
-		reply, err := u.GetListByLocat(s.ctx, req)
+		reply, err := u.GetList(s.ctx, req)
 
 		// Assert
 		assertion.NoError(err)
@@ -75,7 +75,7 @@ func (s *TestSuite) TestGetListByLocat() {
 		u := s.useCase(storage.NewMockRepository(s.T()))
 
 		// Act
-		reply, err := u.GetListByLocat(s.ctx, &payload.GetStorageByLocatRequest{})
+		reply, err := u.GetList(s.ctx, &payload.GetStorageByLocatRequest{})
 
 		// Assert
 		assertion.NoError(err) // a special return with return null according business logic

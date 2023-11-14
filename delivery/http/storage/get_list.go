@@ -27,7 +27,7 @@ func (r *Route) GetList(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return teq.Response.Error(ctx, teqerror.ErrInvalidParams(err))
 	}
-	resp, err := r.UseCase.Storage.GetListByLocat(ctx, &req)
+	resp, err := r.UseCase.Storage.GetList(ctx, &req)
 	if err != nil {
 		return teq.Response.Error(c, err.(teqerror.TeqError))
 	}

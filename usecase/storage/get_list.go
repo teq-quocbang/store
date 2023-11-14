@@ -8,7 +8,7 @@ import (
 	"github.com/teq-quocbang/store/util/myerror"
 )
 
-func (u *UseCase) GetListByLocat(ctx context.Context, req *payload.GetStorageByLocatRequest) (*presenter.ListStorageResponseWrapper, error) {
+func (u *UseCase) GetList(ctx context.Context, req *payload.GetStorageByLocatRequest) (*presenter.ListStorageResponseWrapper, error) {
 	if err := req.Validate(); err != nil {
 		return &presenter.ListStorageResponseWrapper{}, nil
 	}
