@@ -22,6 +22,59 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 	return &MockRepository_Expecter{mock: &_m.Mock}
 }
 
+// GetInventoryQty provides a mock function with given fields: ctx, productID
+func (_m *MockRepository) GetInventoryQty(ctx context.Context, productID string) (int, error) {
+	ret := _m.Called(ctx, productID)
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (int, error)); ok {
+		return rf(ctx, productID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) int); ok {
+		r0 = rf(ctx, productID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, productID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_GetInventoryQty_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetInventoryQty'
+type MockRepository_GetInventoryQty_Call struct {
+	*mock.Call
+}
+
+// GetInventoryQty is a helper method to define mock.On call
+//   - ctx context.Context
+//   - productID string
+func (_e *MockRepository_Expecter) GetInventoryQty(ctx interface{}, productID interface{}) *MockRepository_GetInventoryQty_Call {
+	return &MockRepository_GetInventoryQty_Call{Call: _e.mock.On("GetInventoryQty", ctx, productID)}
+}
+
+func (_c *MockRepository_GetInventoryQty_Call) Run(run func(ctx context.Context, productID string)) *MockRepository_GetInventoryQty_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetInventoryQty_Call) Return(_a0 int, _a1 error) *MockRepository_GetInventoryQty_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_GetInventoryQty_Call) RunAndReturn(run func(context.Context, string) (int, error)) *MockRepository_GetInventoryQty_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetListStorageByLocat provides a mock function with given fields: ctx, locat
 func (_m *MockRepository) GetListStorageByLocat(ctx context.Context, locat string) ([]model.Storage, error) {
 	ret := _m.Called(ctx, locat)

@@ -9,4 +9,5 @@ import (
 type Repository interface {
 	UpsertStorage(context.Context, *model.Storage) error
 	GetListStorageByLocat(ctx context.Context, locat string) ([]model.Storage, error)
+	GetInventoryQty(ctx context.Context, productID string) (int, error)
 }

@@ -22,6 +22,15 @@ func (u *UseCase) AddToCard(ctx context.Context, req *payload.AddToCartRequest) 
 		return nil, myerror.ErrCartInvalidParam(err.Error())
 	}
 
+	// check storage
+	inventoryQty, err := u.Storage.GetInventoryQty(ctx, req.ProductID)
+	if err != nil {
+		return nil, myerror.ErrStorageGet(err)
+	}
+	if inventoryQty < int(req.Qty) {
+		return nil, myerror.ErrStorageInvalidParam("request qty out of the inventory qty")
+	}
+
 	cart := &model.Cart{
 		AccountID: userPrinciple.User.ID,
 		ProductID: productID,

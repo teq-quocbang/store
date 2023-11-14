@@ -32,3 +32,14 @@ func (r pgRepository) GetListStorageByLocat(ctx context.Context, locat string) (
 	}
 	return storages, nil
 }
+
+func (r *pgRepository) GetInventoryQty(ctx context.Context, productID string) (int, error) {
+	var NResult struct {
+		N int
+	}
+	err := r.getDB(ctx).Model(&model.Storage{}).Where("product_id = ?", productID).Select("sum(inventory_qty) as N").Scan(&NResult).Error
+	if err != nil {
+		return 0, err
+	}
+	return NResult.N, nil
+}
