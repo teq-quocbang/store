@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/teq-quocbang/store/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -31,4 +32,15 @@ func (r pgRepository) GetListStorageByLocat(ctx context.Context, locat string) (
 		return nil, err
 	}
 	return storages, nil
+}
+
+func (r *pgRepository) GetInventoryQty(ctx context.Context, productID uuid.UUID) (int, error) {
+	var NResult struct {
+		N int
+	}
+	err := r.getDB(ctx).Model(&model.Storage{}).Where("product_id = ?", productID).Select("sum(inventory_qty) as N").Scan(&NResult).Error
+	if err != nil {
+		return 0, err
+	}
+	return NResult.N, nil
 }

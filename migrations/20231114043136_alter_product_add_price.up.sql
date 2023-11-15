@@ -1,0 +1,1 @@
+ALTER TABLE `product` ADD `price` DEC(10,2);

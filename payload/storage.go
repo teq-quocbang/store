@@ -14,7 +14,7 @@ func (s UpsertStorageRequest) Validate() error {
 }
 
 type GetStorageByLocatRequest struct {
-	Locat string `json:"locat,omitempty" query:"locat"`
+	Locat string `json:"locat,omitempty" query:"locat" validate:"required"`
 }
 
 func (s GetStorageByLocatRequest) Validate() error {

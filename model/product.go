@@ -5,18 +5,20 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
 type Product struct {
-	ID          uuid.UUID `json:"id" yaml:"id"`
-	Name        string    `json:"name" yaml:"name"`
-	ProductType string    `json:"product_type" yaml:"product_type"`
-	ProducerID  uuid.UUID `json:"producer_id" yaml:"producer_id"`
-	CreatedAt   time.Time `json:"created_at" yaml:"created_at"`
-	CreatedBy   uuid.UUID `json:"created_by" yaml:"created_by"`
-	UpdatedAt   time.Time `json:"updated_at" yaml:"updated_at"`
-	UpdatedBy   uuid.UUID `json:"updated_by" yaml:"updated_by"`
+	ID          uuid.UUID       `json:"id" yaml:"id"`
+	Name        string          `json:"name" yaml:"name"`
+	ProductType string          `json:"product_type" yaml:"product_type"`
+	ProducerID  uuid.UUID       `json:"producer_id" yaml:"producer_id"`
+	Price       decimal.Decimal `json:"price" yaml:"price"`
+	CreatedAt   time.Time       `json:"created_at" yaml:"created_at"`
+	CreatedBy   uuid.UUID       `json:"created_by" yaml:"created_by"`
+	UpdatedAt   time.Time       `json:"updated_at" yaml:"updated_at"`
+	UpdatedBy   uuid.UUID       `json:"updated_by" yaml:"updated_by"`
 }
 
 func (Product) TableName() string {

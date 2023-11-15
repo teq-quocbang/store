@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"bou.ke/monkey"
 	fake "github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
+	"github.com/teq-quocbang/store/delivery/http/auth"
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
 	"github.com/teq-quocbang/store/presenter"
 	"github.com/teq-quocbang/store/repository/storage"
-	"github.com/teq-quocbang/store/util/contexts"
 	"github.com/teq-quocbang/store/util/token"
 )
 
@@ -30,16 +29,13 @@ func (s *TestSuite) TestGetListByLocat() {
 			Username: "test_username",
 		},
 	}
-	monkey.Patch(contexts.GetUserPrincipleByContext, func(context.Context) *token.JWTClaimCustom {
-		return userPrinciple
-	})
-	defer monkey.UnpatchAll()
+	ctx := context.WithValue(s.ctx, auth.UserPrincipleKey, userPrinciple)
 
 	// good case
 	{
 		// Arrange
 		mockStorage := storage.NewMockRepository(s.T())
-		mockStorage.EXPECT().GetListStorageByLocat(s.ctx, testLocat).ReturnArguments = mock.Arguments{
+		mockStorage.EXPECT().GetListStorageByLocat(ctx, testLocat).ReturnArguments = mock.Arguments{
 			[]model.Storage{
 				{
 					Locat:        testLocat,
@@ -53,7 +49,7 @@ func (s *TestSuite) TestGetListByLocat() {
 		u := s.useCase(mockStorage)
 
 		// Act
-		reply, err := u.GetList(s.ctx, req)
+		reply, err := u.GetList(ctx, req)
 
 		// Assert
 		assertion.NoError(err)
@@ -75,7 +71,7 @@ func (s *TestSuite) TestGetListByLocat() {
 		u := s.useCase(storage.NewMockRepository(s.T()))
 
 		// Act
-		reply, err := u.GetList(s.ctx, &payload.GetStorageByLocatRequest{})
+		reply, err := u.GetList(ctx, &payload.GetStorageByLocatRequest{})
 
 		// Assert
 		assertion.NoError(err) // a special return with return null according business logic

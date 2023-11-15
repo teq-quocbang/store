@@ -6,6 +6,7 @@ type CreateProductRequest struct {
 	Name        string `json:"name" validate:"required"`
 	ProductType string `json:"product_type" validate:"required"`
 	ProducerID  string `json:"producer_id" validate:"required"`
+	Price       string `json:"price" validate:"required"`
 }
 
 func (p CreateProductRequest) Validate() error {
@@ -29,6 +30,7 @@ type Product struct {
 	Name        string `json:"name" validate:"required"`
 	ProductType string `json:"product_type" validate:"required"`
 	ProducerID  string `json:"producer_id" validate:"required"`
+	Price       string `json:"price" validate:"required"`
 }
 
 type CreateListProductRequest struct {

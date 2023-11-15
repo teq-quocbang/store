@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
@@ -18,11 +19,20 @@ func (u *UseCase) Create(ctx context.Context, req *payload.CreateProductRequest)
 	}
 
 	userPrinciple := contexts.GetUserPrincipleByContext(ctx)
+	price, err := decimal.NewFromString(req.Price)
+	if err != nil {
+		return nil, myerror.ErrProductInvalidParam(err.Error())
+	}
+	producerID, err := uuid.Parse(req.ProducerID)
+	if err != nil {
+		return nil, myerror.ErrProductInvalidParam(err.Error())
+	}
 
 	product := &model.Product{
 		Name:        req.Name,
 		ProductType: req.ProductType,
-		ProducerID:  uuid.MustParse(req.ProducerID),
+		ProducerID:  producerID,
+		Price:       price,
 		CreatedBy:   userPrinciple.User.ID,
 		UpdatedBy:   userPrinciple.User.ID,
 	}

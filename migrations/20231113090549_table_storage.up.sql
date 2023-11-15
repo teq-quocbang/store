@@ -1,4 +1,4 @@
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
   `storage` (
     `locat` char(8) NOT NULL,
     `product_id` varchar(255) NOT NULL,
