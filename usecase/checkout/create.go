@@ -71,6 +71,10 @@ func (u *UseCase) CreateCustomerOrder(ctx context.Context, req *payload.Customer
 		return nil, myerror.ErrCustomerOrderInvalidParam("request qty in cart is out of inventory qty")
 	}
 
+	if cart.Qty < 1 {
+		return nil, myerror.ErrCustomerOrderInvalidParam("cart is empty")
+	}
+
 	customerOrder := &model.CustomerOrder{
 		AccountID: userPrinciple.User.ID,
 		ProductID: productID,
