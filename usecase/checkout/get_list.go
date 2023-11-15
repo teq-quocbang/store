@@ -14,7 +14,21 @@ func (u *UseCase) GetListCart(ctx context.Context) (*presenter.ListCartResponseW
 	if err != nil {
 		return nil, myerror.ErrCartGet(err)
 	}
+
+	cartResponseInformation := make([]presenter.CartInformation, len(carts))
+	for i, cart := range carts {
+		// product, err := u.Product.GetByID(ctx, cart.ProductID)
+		// if err != nil {
+		// 	return nil, myerror.ErrProducerGet(err)
+		// }
+		// totalPrice := product.Price.IntPart() * cart.Qty
+		cartResponseInformation[i] = presenter.CartInformation{
+			Cart: cart,
+			// TotalPrice: ,
+		}
+	}
+
 	return &presenter.ListCartResponseWrapper{
-		Cart: carts,
+		Cart: cartResponseInformation,
 	}, nil
 }

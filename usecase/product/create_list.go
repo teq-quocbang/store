@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
@@ -37,10 +38,15 @@ func (u *UseCase) CreateList(ctx context.Context, req *payload.CreateListProduct
 			if err != nil {
 				return nil, myerror.ErrProductInvalidParam(fmt.Sprintf("error at index [%d], error: %v", i, err))
 			}
+			price, err := decimal.NewFromString(p.Price)
+			if err != nil {
+				return nil, myerror.ErrProductInvalidParam(err.Error())
+			}
 			productModel = append(productModel, model.Product{
 				Name:        p.Name,
 				ProductType: p.ProductType,
 				ProducerID:  producerID,
+				Price:       price,
 				CreatedBy:   userPrinciple.User.ID,
 				UpdatedBy:   userPrinciple.User.ID,
 			})
