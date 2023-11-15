@@ -21,7 +21,7 @@ func (r *Route) GetProductSoldChart(c echo.Context) error {
 	var (
 		ctx  = &teq.CustomEchoContext{Context: c}
 		req  = payload.GetProductSoldChartRequest{}
-		resp *presenter.ListStatisticsResponseWrapper
+		resp *presenter.ListStatisticsSoldProductChartResponseWrapper
 	)
 
 	if err := c.Bind(&req); err != nil {
