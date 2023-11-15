@@ -10,3 +10,12 @@ type ListCartResponseWrapper struct {
 	Cart []model.Cart `json:"product" yaml:"product"`
 	Meta interface{}  `json:"meta"`
 }
+
+type CustomerOrderResponseWrapper struct {
+	CustomerOrder *model.CustomerOrder `json:"product"`
+}
+
+type ListCustomerOrderResponseWrapper struct {
+	CustomerOrder []model.CustomerOrder `json:"product" yaml:"product"`
+	Meta          interface{}           `json:"meta"`
+}

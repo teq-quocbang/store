@@ -15,4 +15,6 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 	group.POST("/add-to-cart", r.AddToCart)
 	group.GET("/carts", r.GetList)
 	group.PUT("/cart/remove", r.RemoveFromCart)
+
+	group.POST("/order", r.CreateCustomerOrder)
 }

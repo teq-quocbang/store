@@ -66,3 +66,63 @@ func ErrCartInvalidParam(param string) teqerror.TeqError {
 		IsSentry:  false,
 	}
 }
+
+func ErrCustomerOrderGet(err error) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       err,
+		HTTPCode:  http.StatusInternalServerError,
+		ErrorCode: "61000",
+		Message:   "Failed to get customer order.",
+		IsSentry:  true,
+	}
+}
+
+func ErrCustomerOrderCreate(err error) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       err,
+		HTTPCode:  http.StatusInternalServerError,
+		ErrorCode: "61001",
+		Message:   "Failed to create customer order.",
+		IsSentry:  true,
+	}
+}
+
+func ErrCustomerOrderUpdate(err error) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       err,
+		HTTPCode:  http.StatusInternalServerError,
+		ErrorCode: "61002",
+		Message:   "Failed to update customer order.",
+		IsSentry:  true,
+	}
+}
+
+func ErrCustomerOrderDelete(err error) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       err,
+		HTTPCode:  http.StatusInternalServerError,
+		ErrorCode: "61003",
+		Message:   "Failed to delete customer order.",
+		IsSentry:  true,
+	}
+}
+
+func ErrCustomerOrderNotFound() teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       nil,
+		HTTPCode:  http.StatusNotFound,
+		ErrorCode: "61004",
+		Message:   "Not found.",
+		IsSentry:  false,
+	}
+}
+
+func ErrCustomerOrderInvalidParam(param string) teqerror.TeqError {
+	return teqerror.TeqError{
+		Raw:       nil,
+		HTTPCode:  http.StatusBadRequest,
+		ErrorCode: "61005",
+		Message:   fmt.Sprintf("Invalid paramemter: `%s`.", param),
+		IsSentry:  false,
+	}
+}

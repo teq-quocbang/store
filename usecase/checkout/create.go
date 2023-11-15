@@ -23,7 +23,7 @@ func (u *UseCase) AddToCard(ctx context.Context, req *payload.AddToCartRequest) 
 	}
 
 	// check storage
-	inventoryQty, err := u.Storage.GetInventoryQty(ctx, req.ProductID)
+	inventoryQty, err := u.Storage.GetInventoryQty(ctx, productID)
 	if err != nil {
 		return nil, myerror.ErrStorageGet(err)
 	}
@@ -43,5 +43,44 @@ func (u *UseCase) AddToCard(ctx context.Context, req *payload.AddToCartRequest) 
 
 	return &presenter.CartResponseWrapper{
 		Cart: cart,
+	}, nil
+}
+
+func (u *UseCase) CreateCustomerOrder(ctx context.Context, req *payload.CustomerOrderRequest) (*presenter.CustomerOrderResponseWrapper, error) {
+	if err := req.Validate(); err != nil {
+		return nil, myerror.ErrCustomerOrderInvalidParam(err.Error())
+	}
+
+	userPrinciple := contexts.GetUserPrincipleByContext(ctx)
+	productID, err := uuid.Parse(req.ProductID)
+	if err != nil {
+		return nil, myerror.ErrCustomerOrderInvalidParam(err.Error())
+	}
+
+	inventoryQty, err := u.Storage.GetInventoryQty(ctx, productID)
+	if err != nil {
+		return nil, myerror.ErrStorageGet(err)
+	}
+
+	cart, err := u.Checkout.GetCartByConstraint(ctx, userPrinciple.User.ID, productID)
+	if err != nil {
+		return nil, myerror.ErrCartGet(err)
+	}
+
+	if inventoryQty < int(cart.Qty) {
+		return nil, myerror.ErrCustomerOrderInvalidParam("request qty in cart is out of inventory qty")
+	}
+
+	customerOrder := &model.CustomerOrder{
+		AccountID: userPrinciple.User.ID,
+		ProductID: productID,
+		SoldQty:   cart.Qty,
+	}
+	if err := u.Checkout.CreateCustomerOrder(ctx, customerOrder); err != nil {
+		return nil, myerror.ErrCustomerOrderCreate(err)
+	}
+
+	return &presenter.CustomerOrderResponseWrapper{
+		CustomerOrder: customerOrder,
 	}, nil
 }

@@ -30,3 +30,12 @@ func (r RemoveFormCartRequest) Validate() error {
 	validate := validator.New()
 	return validate.Struct(r)
 }
+
+type CustomerOrderRequest struct {
+	ProductID string `json:"product_id" validate:"required"`
+}
+
+func (c CustomerOrderRequest) Validate() error {
+	validate := validator.New()
+	return validate.Struct(c)
+}
