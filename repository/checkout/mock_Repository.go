@@ -5,11 +5,10 @@ package checkout
 import (
 	context "context"
 
-	codetype "github.com/teq-quocbang/store/codetype"
-
 	mock "github.com/stretchr/testify/mock"
-
 	model "github.com/teq-quocbang/store/model"
+
+	time "time"
 
 	uuid "github.com/google/uuid"
 )
@@ -179,37 +178,30 @@ func (_c *MockRepository_GetListCart_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetListOrdered provides a mock function with given fields: ctx, accountID, order, paginator
-func (_m *MockRepository) GetListOrdered(ctx context.Context, accountID uuid.UUID, order []string, paginator codetype.Paginator) ([]model.CustomerOrder, int64, error) {
-	ret := _m.Called(ctx, accountID, order, paginator)
+// GetListOrdered provides a mock function with given fields: ctx, accountID, startTime, endTime, order
+func (_m *MockRepository) GetListOrdered(ctx context.Context, accountID uuid.UUID, startTime time.Time, endTime time.Time, order []string) ([]model.CustomerOrder, error) {
+	ret := _m.Called(ctx, accountID, startTime, endTime, order)
 
 	var r0 []model.CustomerOrder
-	var r1 int64
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []string, codetype.Paginator) ([]model.CustomerOrder, int64, error)); ok {
-		return rf(ctx, accountID, order, paginator)
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, time.Time, []string) ([]model.CustomerOrder, error)); ok {
+		return rf(ctx, accountID, startTime, endTime, order)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []string, codetype.Paginator) []model.CustomerOrder); ok {
-		r0 = rf(ctx, accountID, order, paginator)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, time.Time, []string) []model.CustomerOrder); ok {
+		r0 = rf(ctx, accountID, startTime, endTime, order)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]model.CustomerOrder)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, []string, codetype.Paginator) int64); ok {
-		r1 = rf(ctx, accountID, order, paginator)
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, time.Time, time.Time, []string) error); ok {
+		r1 = rf(ctx, accountID, startTime, endTime, order)
 	} else {
-		r1 = ret.Get(1).(int64)
+		r1 = ret.Error(1)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, []string, codetype.Paginator) error); ok {
-		r2 = rf(ctx, accountID, order, paginator)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
+	return r0, r1
 }
 
 // MockRepository_GetListOrdered_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetListOrdered'
@@ -220,25 +212,26 @@ type MockRepository_GetListOrdered_Call struct {
 // GetListOrdered is a helper method to define mock.On call
 //   - ctx context.Context
 //   - accountID uuid.UUID
+//   - startTime time.Time
+//   - endTime time.Time
 //   - order []string
-//   - paginator codetype.Paginator
-func (_e *MockRepository_Expecter) GetListOrdered(ctx interface{}, accountID interface{}, order interface{}, paginator interface{}) *MockRepository_GetListOrdered_Call {
-	return &MockRepository_GetListOrdered_Call{Call: _e.mock.On("GetListOrdered", ctx, accountID, order, paginator)}
+func (_e *MockRepository_Expecter) GetListOrdered(ctx interface{}, accountID interface{}, startTime interface{}, endTime interface{}, order interface{}) *MockRepository_GetListOrdered_Call {
+	return &MockRepository_GetListOrdered_Call{Call: _e.mock.On("GetListOrdered", ctx, accountID, startTime, endTime, order)}
 }
 
-func (_c *MockRepository_GetListOrdered_Call) Run(run func(ctx context.Context, accountID uuid.UUID, order []string, paginator codetype.Paginator)) *MockRepository_GetListOrdered_Call {
+func (_c *MockRepository_GetListOrdered_Call) Run(run func(ctx context.Context, accountID uuid.UUID, startTime time.Time, endTime time.Time, order []string)) *MockRepository_GetListOrdered_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]string), args[3].(codetype.Paginator))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(time.Time), args[3].(time.Time), args[4].([]string))
 	})
 	return _c
 }
 
-func (_c *MockRepository_GetListOrdered_Call) Return(_a0 []model.CustomerOrder, _a1 int64, _a2 error) *MockRepository_GetListOrdered_Call {
-	_c.Call.Return(_a0, _a1, _a2)
+func (_c *MockRepository_GetListOrdered_Call) Return(_a0 []model.CustomerOrder, _a1 error) *MockRepository_GetListOrdered_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockRepository_GetListOrdered_Call) RunAndReturn(run func(context.Context, uuid.UUID, []string, codetype.Paginator) ([]model.CustomerOrder, int64, error)) *MockRepository_GetListOrdered_Call {
+func (_c *MockRepository_GetListOrdered_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time, time.Time, []string) ([]model.CustomerOrder, error)) *MockRepository_GetListOrdered_Call {
 	_c.Call.Return(run)
 	return _c
 }

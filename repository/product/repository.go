@@ -14,4 +14,5 @@ type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (model.Product, error)
 	Update(context.Context, *model.Product) error
 	Delete(context.Context, uuid.UUID) error
+	GetListByProductIDs(ctx context.Context, productIDs []uuid.UUID) ([]model.Product, error)
 }

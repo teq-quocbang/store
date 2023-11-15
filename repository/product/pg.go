@@ -49,3 +49,12 @@ func (r *pgRepository) GetList(ctx context.Context) ([]model.Product, error) {
 	}
 	return products, nil
 }
+
+func (r *pgRepository) GetListByProductIDs(ctx context.Context, productIDs []uuid.UUID) ([]model.Product, error) {
+	products := []model.Product{}
+	err := r.getDB(ctx).Where("id in (?)", productIDs).Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}

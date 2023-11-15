@@ -260,6 +260,61 @@ func (_c *MockRepository_GetList_Call) RunAndReturn(run func(context.Context) ([
 	return _c
 }
 
+// GetListByProductIDs provides a mock function with given fields: ctx, productIDs
+func (_m *MockRepository) GetListByProductIDs(ctx context.Context, productIDs []uuid.UUID) ([]model.Product, error) {
+	ret := _m.Called(ctx, productIDs)
+
+	var r0 []model.Product
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]model.Product, error)); ok {
+		return rf(ctx, productIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []model.Product); ok {
+		r0 = rf(ctx, productIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Product)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
+		r1 = rf(ctx, productIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_GetListByProductIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetListByProductIDs'
+type MockRepository_GetListByProductIDs_Call struct {
+	*mock.Call
+}
+
+// GetListByProductIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - productIDs []uuid.UUID
+func (_e *MockRepository_Expecter) GetListByProductIDs(ctx interface{}, productIDs interface{}) *MockRepository_GetListByProductIDs_Call {
+	return &MockRepository_GetListByProductIDs_Call{Call: _e.mock.On("GetListByProductIDs", ctx, productIDs)}
+}
+
+func (_c *MockRepository_GetListByProductIDs_Call) Run(run func(ctx context.Context, productIDs []uuid.UUID)) *MockRepository_GetListByProductIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetListByProductIDs_Call) Return(_a0 []model.Product, _a1 error) *MockRepository_GetListByProductIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_GetListByProductIDs_Call) RunAndReturn(run func(context.Context, []uuid.UUID) ([]model.Product, error)) *MockRepository_GetListByProductIDs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: _a0, _a1
 func (_m *MockRepository) Update(_a0 context.Context, _a1 *model.Product) error {
 	ret := _m.Called(_a0, _a1)

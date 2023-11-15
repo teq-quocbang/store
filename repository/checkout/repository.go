@@ -2,9 +2,9 @@ package checkout
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/teq-quocbang/store/codetype"
 	"github.com/teq-quocbang/store/model"
 )
 
@@ -15,5 +15,10 @@ type Repository interface {
 	RemoveFromCart(ctx context.Context, accountID uuid.UUID, productID uuid.UUID, qty int64) error
 
 	CreateCustomerOrder(context.Context, *model.CustomerOrder) error
-	GetListOrdered(ctx context.Context, accountID uuid.UUID, order []string, paginator codetype.Paginator) ([]model.CustomerOrder, int64, error)
+	GetListOrdered(
+		ctx context.Context,
+		accountID uuid.UUID,
+		startTime time.Time,
+		endTime time.Time,
+		order []string) ([]model.CustomerOrder, error)
 }
