@@ -13,4 +13,5 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 	r := &Route{UseCase: useCase}
 
 	group.GET("/product-sold-chart", r.GetProductSoldChart)
+	group.GET("/product-growth-chart", r.GetProductGrowthChart)
 }
