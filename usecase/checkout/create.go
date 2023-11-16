@@ -57,28 +57,35 @@ func (u *UseCase) CreateCustomerOrder(ctx context.Context, req *payload.Customer
 		return nil, myerror.ErrCustomerOrderInvalidParam(err.Error())
 	}
 
+	// get inventory qty
 	inventoryQty, err := u.Storage.GetInventoryQty(ctx, productID)
 	if err != nil {
 		return nil, myerror.ErrStorageGet(err)
 	}
 
+	// get product from cart
 	cart, err := u.Checkout.GetCartByConstraint(ctx, userPrinciple.User.ID, productID)
 	if err != nil {
 		return nil, myerror.ErrCartGet(err)
 	}
-
 	if inventoryQty < int(cart.Qty) {
 		return nil, myerror.ErrCustomerOrderInvalidParam("request qty in cart is out of inventory qty")
 	}
-
 	if cart.Qty < 1 {
 		return nil, myerror.ErrCustomerOrderInvalidParam("cart is empty")
 	}
 
+	// get price from product
+	product, err := u.Product.GetByID(ctx, cart.ProductID)
+	if err != nil {
+		return nil, myerror.ErrProductGet(err)
+	}
+
 	customerOrder := &model.CustomerOrder{
-		AccountID: userPrinciple.User.ID,
-		ProductID: productID,
-		SoldQty:   cart.Qty,
+		AccountID:  userPrinciple.User.ID,
+		ProductID:  productID,
+		PriceOfPer: product.Price,
+		SoldQty:    cart.Qty,
 	}
 	if err := u.Checkout.CreateCustomerOrder(ctx, customerOrder); err != nil {
 		return nil, myerror.ErrCustomerOrderCreate(err)
