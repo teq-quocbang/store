@@ -20,7 +20,7 @@ import (
 func (r *Route) GetProductSoldChart(c echo.Context) error {
 	var (
 		ctx  = &teq.CustomEchoContext{Context: c}
-		req  = payload.GetProductSoldChartRequest{}
+		req  = payload.GetChartRequest{}
 		resp *presenter.ListStatisticsSoldProductChartResponseWrapper
 	)
 

@@ -10,7 +10,7 @@ const (
 	Month                 TimeDuration = "month"
 )
 
-type GetProductSoldChartRequest struct {
+type GetChartRequest struct {
 	StartTime    string `json:"start_time"`
 	EndTime      string `json:"end_time"`
 	ProductType  string `json:"product_type" query:"product_type"`
@@ -19,11 +19,11 @@ type GetProductSoldChartRequest struct {
 	TimeDuration string `json:"time_duration" query:"time_duration"`
 }
 
-func (p GetProductSoldChartRequest) IsNeedToFilter() bool {
+func (p GetChartRequest) IsNeedToFilter() bool {
 	return p.ProductType != ""
 }
 
-func (p *GetProductSoldChartRequest) Format() {
+func (p *GetChartRequest) Format() {
 	if p.TimeDuration == "" {
 		p.TimeDuration = string(DEFAULT_TIME_DURATION)
 	}

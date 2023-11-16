@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/shopspring/decimal"
 
 	"github.com/teq-quocbang/store/model"
 	"github.com/teq-quocbang/store/payload"
@@ -16,7 +17,7 @@ import (
 	"github.com/teq-quocbang/store/util/times"
 )
 
-func (u *UseCase) GetProductSoldChart(ctx context.Context, req *payload.GetProductSoldChartRequest) (*presenter.ListStatisticsSoldProductChartResponseWrapper, error) {
+func (u *UseCase) prepareProductSold(ctx context.Context, req *payload.GetChartRequest) ([]model.CustomerOrder, error) {
 	req.Format()
 	var (
 		order = make([]string, 0)
@@ -70,58 +71,21 @@ func (u *UseCase) GetProductSoldChart(ctx context.Context, req *payload.GetProdu
 			return false
 		})
 
-		return &presenter.ListStatisticsSoldProductChartResponseWrapper{
-			Sold: parseChartSorting(req.TimeDuration, filteredCdrs),
-		}, nil
+		return filteredCdrs, nil
 	}
 
-	return &presenter.ListStatisticsSoldProductChartResponseWrapper{
-		Sold: parseChartSorting(req.TimeDuration, cdrs),
-	}, nil
+	return cdrs, nil
 }
 
-func parseChartSorting(timeDuration string, filteredCdrs []model.CustomerOrder) []presenter.SoldProduct {
-	mSoldProduct := map[string]presenter.SoldProduct{}
-	switch timeDuration {
-	case string(payload.WEEK):
-		for _, cdr := range filteredCdrs {
-			year, week := cdr.CreatedAt.ISOWeek()
-			start, end := times.WeekRange(year, week)
-			if value, ok := mSoldProduct[fmt.Sprintf("%d%d", year, week)]; ok {
-				mSoldProduct[fmt.Sprintf("%d%d", year, week)] = presenter.SoldProduct{
-					ProductIDs: append(value.ProductIDs, cdr.ProductID),
-					SoldQty:    value.SoldQty + cdr.SoldQty,
-					SoldStart:  start,
-					SoldEnd:    end,
-				}
-			} else {
-				mSoldProduct[fmt.Sprintf("%d%d", year, week)] = presenter.SoldProduct{
-					ProductIDs: []uuid.UUID{cdr.ProductID},
-					SoldQty:    cdr.SoldQty,
-					SoldStart:  start,
-					SoldEnd:    end,
-				}
-			}
-		}
-	default:
-		for _, cdr := range filteredCdrs {
-			year, month, day := cdr.CreatedAt.Date()
-			if value, ok := mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)]; ok {
-				mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)] = presenter.SoldProduct{
-					ProductIDs: append(value.ProductIDs, cdr.ProductID),
-					SoldQty:    value.SoldQty + cdr.SoldQty,
-					SoldStart:  cdr.CreatedAt,
-					SoldEnd:    cdr.CreatedAt,
-				}
-			} else {
-				mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)] = presenter.SoldProduct{
-					ProductIDs: []uuid.UUID{cdr.ProductID},
-					SoldQty:    cdr.SoldQty,
-					SoldStart:  cdr.CreatedAt,
-					SoldEnd:    cdr.CreatedAt,
-				}
-			}
-		}
+func (u *UseCase) GetProductSoldChart(ctx context.Context, req *payload.GetChartRequest) (*presenter.ListStatisticsSoldProductChartResponseWrapper, error) {
+	cdrs, err := u.prepareProductSold(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	mSoldProduct, err := u.parseChart(ctx, req.TimeDuration, cdrs)
+	if err != nil {
+		return nil, err
 	}
 
 	result := make([]presenter.SoldProduct, len(mSoldProduct))
@@ -131,5 +95,62 @@ func parseChartSorting(timeDuration string, filteredCdrs []model.CustomerOrder) 
 		n++
 	}
 
-	return result
+	return &presenter.ListStatisticsSoldProductChartResponseWrapper{
+		Sold: result,
+	}, nil
+}
+
+func (u *UseCase) parseChart(ctx context.Context, timeDuration string, filteredCdrs []model.CustomerOrder) (map[string]presenter.SoldProduct, error) {
+	mSoldProduct := map[string]presenter.SoldProduct{}
+	switch timeDuration {
+	case string(payload.WEEK):
+		for _, cdr := range filteredCdrs {
+			year, week := cdr.CreatedAt.ISOWeek()
+			start, end := times.WeekRange(year, week)
+			if value, ok := mSoldProduct[fmt.Sprintf("%d%d", year, week)]; ok {
+				totalPrice := value.TotalPrice.CoefficientInt64() + (cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty)
+				mSoldProduct[fmt.Sprintf("%d%d", year, week)] = presenter.SoldProduct{
+					ProductIDs: append(value.ProductIDs, cdr.ProductID),
+					SoldQty:    value.SoldQty + cdr.SoldQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  start,
+					SoldEnd:    end,
+				}
+			} else {
+				totalPrice := cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				mSoldProduct[fmt.Sprintf("%d%d", year, week)] = presenter.SoldProduct{
+					ProductIDs: []uuid.UUID{cdr.ProductID},
+					SoldQty:    cdr.SoldQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  start,
+					SoldEnd:    end,
+				}
+			}
+		}
+	default:
+		for _, cdr := range filteredCdrs {
+			year, month, day := cdr.CreatedAt.Date()
+			if value, ok := mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)]; ok {
+				totalPrice := value.TotalPrice.CoefficientInt64() + (cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty)
+				mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)] = presenter.SoldProduct{
+					ProductIDs: append(value.ProductIDs, cdr.ProductID),
+					SoldQty:    value.SoldQty + cdr.SoldQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  cdr.CreatedAt,
+					SoldEnd:    cdr.CreatedAt,
+				}
+			} else {
+				totalPrice := cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)] = presenter.SoldProduct{
+					ProductIDs: []uuid.UUID{cdr.ProductID},
+					SoldQty:    cdr.SoldQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  cdr.CreatedAt,
+					SoldEnd:    cdr.CreatedAt,
+				}
+			}
+		}
+	}
+
+	return mSoldProduct, nil
 }

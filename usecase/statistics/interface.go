@@ -8,5 +8,5 @@ import (
 )
 
 type IUseCase interface {
-	GetProductSoldChart(context.Context, *payload.GetProductSoldChartRequest) (*presenter.ListStatisticsSoldProductChartResponseWrapper, error)
+	GetProductSoldChart(context.Context, *payload.GetChartRequest) (*presenter.ListStatisticsSoldProductChartResponseWrapper, error)
 }

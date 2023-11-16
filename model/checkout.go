@@ -22,7 +22,7 @@ type CustomerOrder struct {
 	AccountID uuid.UUID `json:"account_id"`
 	ProductID uuid.UUID `json:"product_id"`
 	// price of per product
-	PriceOfPer decimal.Decimal `json:"price"`
+	PriceOfPer decimal.Decimal `json:"price_of_per"`
 	SoldQty    int64           `json:"sold_qty"`
 	CreatedAt  time.Time       `json:"created_at"`
 }
