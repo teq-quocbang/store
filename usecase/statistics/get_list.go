@@ -154,3 +154,133 @@ func (u *UseCase) parseChart(ctx context.Context, timeDuration string, filteredC
 
 	return mSoldProduct, nil
 }
+
+func (u *UseCase) parseGrowthChart(ctx context.Context, timeDuration string, filteredCdrs []model.CustomerOrder) (map[string]presenter.SoldProduct, error) {
+	mSoldProduct := map[string]presenter.SoldProduct{}
+	switch timeDuration {
+	case string(payload.WEEK):
+		var (
+			oldKey      string
+			growthPrice int64
+			growthQty   int64
+		)
+		for _, cdr := range filteredCdrs {
+			year, week := cdr.CreatedAt.ISOWeek()
+			start, end := times.WeekRange(year, week)
+			currentKey := fmt.Sprintf("%d%d", year, week)
+			if value, ok := mSoldProduct[currentKey]; ok {
+				totalPrice := value.TotalPrice.CoefficientInt64() + (cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty)
+				totalQty := value.SoldQty + cdr.SoldQty
+
+				mSoldProduct[currentKey] = presenter.SoldProduct{
+					ProductIDs: append(value.ProductIDs, cdr.ProductID),
+					SoldQty:    totalQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  start,
+					SoldEnd:    end,
+				}
+
+				// growth price and qty always up-to-date and remove the start price and product because
+				// it was increase in map before
+				growthPrice += cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				growthQty += cdr.SoldQty
+			} else {
+				totalPrice := cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				totalQty := cdr.SoldQty
+
+				// nếu khác tuần thì cộng dồn
+				if oldKey != currentKey {
+					totalPrice = totalPrice + growthPrice
+					totalQty = totalQty + growthQty
+				}
+				mSoldProduct[fmt.Sprintf("%d%d", year, week)] = presenter.SoldProduct{
+					ProductIDs: []uuid.UUID{cdr.ProductID},
+					SoldQty:    totalQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  start,
+					SoldEnd:    end,
+				}
+
+				// growth price and qty always up-to-date
+				growthPrice += cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				growthQty += cdr.SoldQty
+			}
+			oldKey = currentKey
+		}
+	default:
+		var (
+			oldKey      string
+			growthPrice int64
+			growthQty   int64
+		)
+		for _, cdr := range filteredCdrs {
+			year, month, day := cdr.CreatedAt.Date()
+			currentKey := fmt.Sprintf("%d%v%d", year, month, day)
+
+			if value, ok := mSoldProduct[currentKey]; ok {
+				totalPrice := value.TotalPrice.CoefficientInt64() + (cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty)
+				totalQty := value.SoldQty + cdr.SoldQty
+
+				mSoldProduct[fmt.Sprintf("%d%v%d", year, month, day)] = presenter.SoldProduct{
+					ProductIDs: append(value.ProductIDs, cdr.ProductID),
+					SoldQty:    totalQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  cdr.CreatedAt,
+					SoldEnd:    cdr.CreatedAt,
+				}
+
+				// growth price and qty always up-to-date and remove the start price and product because
+				// it was increase in map before
+				growthPrice += cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				growthQty += cdr.SoldQty
+			} else {
+				totalPrice := cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				totalQty := cdr.SoldQty
+
+				// nếu khác ngày thì cộng dồn
+				if oldKey != currentKey {
+					totalPrice = totalPrice + growthPrice
+					totalQty = totalQty + growthQty
+				}
+
+				mSoldProduct[currentKey] = presenter.SoldProduct{
+					ProductIDs: []uuid.UUID{cdr.ProductID},
+					SoldQty:    totalQty,
+					TotalPrice: decimal.NewFromInt(totalPrice),
+					SoldStart:  cdr.CreatedAt,
+					SoldEnd:    cdr.CreatedAt,
+				}
+
+				// growth price and qty always up-to-date
+				growthPrice += cdr.PriceOfPer.CoefficientInt64() * cdr.SoldQty
+				growthQty += cdr.SoldQty
+			}
+			oldKey = currentKey
+		}
+	}
+
+	return mSoldProduct, nil
+}
+
+func (u *UseCase) GetProductGrowthChart(ctx context.Context, req *payload.GetChartRequest) (*presenter.ListStatisticsSoldProductChartResponseWrapper, error) {
+	cdrs, err := u.prepareProductSold(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	mSoldProduct, err := u.parseGrowthChart(ctx, req.TimeDuration, cdrs)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]presenter.SoldProduct, len(mSoldProduct))
+	n := 0
+	for _, sp := range mSoldProduct {
+		result[n] = sp
+		n++
+	}
+
+	return &presenter.ListStatisticsSoldProductChartResponseWrapper{
+		Sold: result,
+	}, nil
+}
