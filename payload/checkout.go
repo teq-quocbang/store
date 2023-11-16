@@ -1,6 +1,8 @@
 package payload
 
-import "github.com/go-playground/validator/v10"
+import (
+	"github.com/go-playground/validator/v10"
+)
 
 type AddToCartRequest struct {
 	ProductID string `json:"product_id" validate:"required"`

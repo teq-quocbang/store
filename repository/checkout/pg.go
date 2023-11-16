@@ -3,9 +3,9 @@ package checkout
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/teq-quocbang/store/codetype"
 	"github.com/teq-quocbang/store/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -84,37 +84,25 @@ func (r *pgRepository) CreateCustomerOrder(ctx context.Context, cdr *model.Custo
 	return nil
 }
 
-func (r *pgRepository) GetListOrdered(ctx context.Context, accountID uuid.UUID, order []string, paginator codetype.Paginator) ([]model.CustomerOrder, int64, error) {
+func (r *pgRepository) GetListOrdered(
+	ctx context.Context,
+	accountID uuid.UUID,
+	startTime time.Time,
+	endTime time.Time,
+	order []string) ([]model.CustomerOrder, error) {
 	var (
-		db     = r.getDB(ctx).Model(&model.CustomerOrder{})
-		total  int64
-		offset int
-		cdrs   []model.CustomerOrder
+		db   = r.getDB(ctx).Model(&model.CustomerOrder{})
+		cdrs []model.CustomerOrder
 	)
 
 	for i := range order {
 		db = db.Order(order[i])
 	}
 
-	if paginator.Page != 1 {
-		offset = paginator.Limit * (paginator.Page - 1)
-	}
-
-	if paginator.Limit != -1 {
-		err := db.Count(&total).Error
-		if err != nil {
-			return nil, 0, err
-		}
-	}
-
-	err := db.Where("account_id = ?", accountID).Limit(paginator.Limit).Offset(offset).Find(&cdrs).Error
+	err := db.Where("account_id = ? and created_at >= ? and created_at <= ?", accountID, startTime, endTime).Find(&cdrs).Error
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	if paginator.Limit == -1 {
-		total = int64(len(cdrs))
-	}
-
-	return cdrs, total, nil
+	return cdrs, nil
 }
